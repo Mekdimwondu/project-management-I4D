@@ -1,23 +1,18 @@
 // src/api/projectApi.js
-import { Navigate, Outlet } from 'react-router-dom';
+import axios from 'axios';
 
-// eslint-disable-next-line react/prop-types
-const ProtectedRoute = ({ requiredRole }) => {
-  const storedUser = localStorage.getItem('User'); // Retrieve the user from local storage
-  const user = storedUser ? JSON.parse(storedUser) : null; // Parse the user if it exists
+const API_URL = 'http://localhost:5000/api/project'; // Replace with your backend API URL
 
-  if (!user) {
-    // User is not authenticated, redirect to login
-    return <Navigate to="/login" />;
+export const fetchProjects = async () => {
+  try {
+    const response = await axios.get(API_URL, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('User')}`, // Replace with your token management logic
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    throw error;
   }
-
-  if (requiredRole && user.role !== requiredRole) {
-    // User is authenticated but doesn't have the required role, redirect to dashboard
-    return <Navigate to="/dashboard" />;
-  }
-
-  // User is authenticated and has the required role (if any), allow access
-  return <Outlet />;
 };
-
-export default ProtectedRoute;
