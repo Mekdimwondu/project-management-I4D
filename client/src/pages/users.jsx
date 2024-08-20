@@ -1,46 +1,62 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import axios from 'axios';
 import { useState, useEffect } from 'react';
+import {jwtDecode} from 'jwt-decode';
+import { displayUsers } from '../api/userApi' // Import the centralized API instance
 
 function Users() {
     const [users, setUsers] = useState([]);
+    const [userRole, setUserRole] = useState(null);
     const navigate = useNavigate();
 
-    // Fetch users from the API
-    const fetchUsers = async () => {
+    useEffect(() => {
         const token = localStorage.getItem('User');
-        if (!token) {
-            console.error('No token found');
-            return;
+        console.log(token)
+        if (token) {
+            try {
+                const decodedToken = jwtDecode(token);
+                setUserRole(decodedToken.role); // Set user role
+                console.log(decodedToken.role)
+            } catch (error) {
+                console.error('Failed to decode token:', error);
+                navigate('/login'); // If decoding fails, redirect to login
+            }
+        } else {
+            navigate('/login'); // Redirect if no token
         }
-        
+    }, [navigate]);
+
+    useEffect(() => {
+        if (userRole === 'Admin') {
+            console.log('Fetching users as Admin...');
+            fetchUsers(); // Use centralized API call
+        }
+        console.log('User role:', userRole);
+    }, [userRole]);
+
+    const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/users/users', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            setUsers(response.data);
+            const users = await displayUsers(); // Use the centralized API function
+            setUsers(users);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
     };
 
-    // Run fetchUsers on component mount
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    // Handle "Add User" button click
     const handleAddUserClick = () => {
-    navigate('/addmember');
-  };
-  
+        navigate('/addmember');
+    };
 
-    // Handle row click to navigate to user details
     const handleRowClick = (userId) => {
         navigate(`/user/${userId}`);
     };
+
+    if (!userRole) {
+        return <div>Loading...</div>; // Render a loading state while determining role
+    }
+
+    if (userRole !== 'Admin') {
+        return <div>You do not have permission to view this page.</div>;
+    }
 
     return (
         <section className="p-4 space-y-4">
@@ -56,7 +72,7 @@ function Users() {
                 />
                 <button
                     onClick={handleAddUserClick}
-                    className="bg-blue2 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
+                    className="bg-blue text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
                 >
                     Add User
                 </button>

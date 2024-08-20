@@ -1,11 +1,18 @@
 import { Outlet, Link, NavLink } from "react-router-dom";
-
+import { jwtDecode } from "jwt-decode";
 function Layout() {
-  // Fetch the user data from localStorage
-  const storedUser = localStorage.getItem('User');
-  const user = storedUser ? (storedUser) : null;
+  const storedUserToken = localStorage.getItem('User'); // Get the token from local storage
+let user = null;
 
-  const isAdmin = user && user.role === 'Admin';
+if (storedUserToken) {
+  try {
+    user = jwtDecode(storedUserToken); // Decode the token to get the user info
+  } catch (error) {
+    console.error('Failed to decode token:', error);
+  }
+}
+
+const isAdmin = user && user.role === 'Admin';
 
   return (
     <section className="flex h-screen overflow-hidden">

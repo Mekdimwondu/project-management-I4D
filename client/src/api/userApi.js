@@ -1,18 +1,18 @@
-import axios from 'axios';
+import apiService from './apiService';
 
-// Create an Axios 
-const token = localStorage.getItem('User');
-const apiUser = axios.create({
-  baseURL: 'http://localhost:5000/api/users/',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-  },
-});
+export const displayUsers = async () => {
+  try {
+    const response = await apiService.get('/users/users');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
 
 const addUser = async (memberData) => {
   try {
-    const response = await apiUser.post('/users', memberData);
+    const response = await apiService.post('/users', memberData);
     return response.data;
   } catch (error) {
     console.error('Error adding user:', error.response || error.message);
@@ -23,7 +23,7 @@ const addUser = async (memberData) => {
 // Function to get all users
 const getMembers = async () => {
   try {
-    const response = await apiUser.get('/users');
+    const response = await apiService.get('/users');
     return response.data;
   } catch (error) {
     console.error('Error getting users:', error.response || error.message);
@@ -31,10 +31,9 @@ const getMembers = async () => {
   }
 };
 
-// Function to update a user
-const updateMember = async (memberId, memberData) => {
+ const updateMember = async (memberId, memberData) => {
   try {
-    const response = await apiUser.put(`/users${memberId}`, memberData);
+    const response = await apiService.put(`/users/${memberId}`, memberData); // Fixed URL
     return response.data;
   } catch (error) {
     console.error('Error updating user:', error.response || error.message);
@@ -42,16 +41,17 @@ const updateMember = async (memberId, memberData) => {
   }
 };
 
-// Function to delete a user
-const deleteMember = async (memberId) => {
+// Delete user
+ const deleteMember = async (memberId) => {
   try {
-    const response = await apiUser.delete(`/users${memberId}`);
+    const response = await apiService.delete(`/users/${memberId}`); // Fixed URL
     return response.data;
   } catch (error) {
     console.error('Error deleting user:', error.response || error.message);
     throw error;
   }
 };
+
 
 // Export the functions
 export { addUser, getMembers, updateMember, deleteMember };
