@@ -22,6 +22,7 @@ import AddTask from './pages/addtask';
 import SessionExpired from './components/SessionExpired'; // Import the SessionExpired component
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
+import ProjctDiscriptione from './pages/ProjctDiscriptione';
 
 const router = createBrowserRouter([
   {
@@ -57,19 +58,19 @@ const router = createBrowserRouter([
             element: <Project />,
           },
           {
+          path:'/project/:projectId',
+          element:<ProjctDiscriptione/>
+          },
+          {
             path: '/add-task',
-            element: (
-              <ProtectedRoute requiredRole="Admin">
+            element: ( 
                 <AddTask />
-              </ProtectedRoute>
             ),
           },
           {
             path: '/add-project', // Add the new route here
             element: (
-              <ProtectedRoute requiredRole="Admin">
                 <AddProject />
-              </ProtectedRoute>
             ), // Component for the Add Project page
           },
           {
@@ -79,9 +80,7 @@ const router = createBrowserRouter([
           {
             path: '/users',
             element: (
-               <ProtectedRoute requiredRole="Admin">
-                <Users />
-               </ProtectedRoute>
+                 <Users />  
             ),
           },
           {
@@ -91,9 +90,7 @@ const router = createBrowserRouter([
           {
             path: '/addmember',
             element: (
-              <ProtectedRoute requiredRole="Admin">
                 <AddMember />
-              </ProtectedRoute>
             ),
           },
           {

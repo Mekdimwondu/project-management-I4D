@@ -10,4 +10,14 @@ export const fetchProjects = async () => {
     throw error;
   }
 };
+// In projectApi.js
+export const fetchProjectById = async (projectId) => {
+  try {
+    const response = await apiService.get(`/project/${projectId}`);
+    return response.data; // Correct way to access data in axios
+  } catch (error) {
+    console.error('Failed to fetch project by ID:', error);
+    throw error;
+  }
+};
 

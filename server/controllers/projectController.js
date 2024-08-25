@@ -28,10 +28,23 @@ const createProject = async (req, res) => {
   };
   const getProject = async (req, res) => {
     try {
-      const projects = await Project.find(); // Assuming you're using Mongoose
+      const projects = await Project.find(); 
       res.status(200).json(projects);
     } catch (error) {
       console.error('Error fetching projects:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  };
+  const getProjectById = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const project = await Project.findById(id);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+      res.status(200).json(project);
+    } catch (error) {
+      console.error('Error fetching project by ID:', error);
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -68,4 +81,4 @@ const deleteProject = async (req, res) => {
   }
 };
 
-module.exports = { createProject,getProject, updateProject,deleteProject };
+module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject };
