@@ -1,32 +1,28 @@
-
+import { feachUserById } from '../api/userApi';
 import { useParams } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
-const users = [
-  {
-    id: 1,
-    profilePicture: 'https://via.placeholder.com/150',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phoneNumber: '123-456-7890',
-    gender: 'Male',
-    jobType: 'Full-Time',
-    workType: 'Remote',
-    experienceLevel: 'Senior',
-    role: 'Developer',
-    userRole: 'Admin',
-    bio: 'Experienced software developer with a passion for building web applications.',
-  },
-  // Add more user objects here
-];
+import { useEffect, useState } from 'react';
+
+
+
 
 function UserProfile() {
-  const { userId } = useParams();
-  const user = users.find((user) => user.id === parseInt(userId));
+  const [user ,setUser]=useState(null);
+  const {memberId} = useParams();
+useEffect(()=>{
+  const getUser= async()=>{
+    try {
+      const data =await feachUserById.get(memberId)
+      setUser(data)
+    } catch (error) {
+      console.error('failed to feach user data',error)
+    }
+    
+  };
+ getUser();
+},[memberId])
 
-  if (!user) {
-    return <div>User not found</div>;
-  }
+
 
   return (
     <section className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
@@ -38,11 +34,11 @@ function UserProfile() {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between items-center">
             <div className="sm:w-1/3">
-              <img
+              {/* <img
                 src={user.profilePicture}
                 alt="Profile"
                 className="rounded-full w-32 h-32 sm:w-48 sm:h-48 object-cover mx-auto sm:mx-0"
-              />
+              /> */}
             </div>
             <div className="sm:w-2/3 sm:pl-6">
               <h3 className="text-2xl font-semibold">{user.firstName} {user.lastName}</h3>

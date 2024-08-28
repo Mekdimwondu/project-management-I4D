@@ -21,3 +21,12 @@ export const fetchProjectById = async (projectId) => {
   }
 };
 
+export const updateTaskStatus = async (projectId, taskId, status) => {
+  try {
+    const response = await apiService.put(`/project/${projectId}/tasks/${taskId}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating task status:', error);
+    throw error;
+  }
+};

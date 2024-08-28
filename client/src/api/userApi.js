@@ -51,7 +51,15 @@ const getMembers = async () => {
     throw error;
   }
 };
-
+const feachUserById= async(memberId)=>{
+  try {
+    const response=await apiService.get(`/users/users${memberId}`);
+    return response.data;
+  } catch (error) {
+    console.error('error feaching user',error)
+    
+  }
+}
 
 // Export the functions
-export { addUser, getMembers, updateMember, deleteMember };
+export { addUser, getMembers, updateMember, deleteMember,feachUserById };
