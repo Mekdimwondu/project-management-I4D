@@ -46,8 +46,8 @@ function Users() {
         navigate('/addmember');
     };
 
-    const handleRowClick = (userId) => {
-        navigate(`/user/${userId}`);
+    const handleRowClick = (memberId) => {
+        navigate(`/users/${memberId}`);
     };
 
     if (!userRole) {

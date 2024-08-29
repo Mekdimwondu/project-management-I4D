@@ -94,7 +94,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: '/user/:userId',
+            path: '/users/:memberId',
             element: <UserProfile />,
           }
         ],

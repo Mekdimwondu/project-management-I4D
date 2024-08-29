@@ -1,39 +1,39 @@
-import { feachUserById } from '../api/userApi';
+import { fetchUserById } from '../api/userApi';
 import { useParams } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
-
-
-
 function UserProfile() {
-  const [user ,setUser]=useState(null);
-  const {memberId} = useParams();
-useEffect(()=>{
-  const getUser= async()=>{
-    try {
-      const data =await feachUserById.get(memberId)
-      setUser(data)
-    } catch (error) {
-      console.error('failed to feach user data',error)
-    }
-    
-  };
- getUser();
-},[memberId])
+  const [user, setUser] = useState(null);
+  const { memberId } = useParams();
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const data = await fetchUserById(memberId); // Call the API to get user data
+        setUser(data);
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+      }
+    };
+    getUser();
+  }, [memberId]);
 
+  if (!user) {
+    return <div>Loading...</div>; // Loading state
+  }
 
   return (
     <section className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className='flex justify-between items-center mb-6'>
-        <h2 className="text-3xl font-semibold text-center mb-6">User Profile</h2>
-        <FaEdit className="text-gray-600 cursor-pointer" size={24} />
+          <h2 className="text-3xl font-semibold text-center mb-6">User Profile</h2>
+          <FaEdit className="text-gray-600 cursor-pointer" size={24} />
         </div>
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between items-center">
             <div className="sm:w-1/3">
+              {/* Uncomment this block if you have a profile picture */}
               {/* <img
                 src={user.profilePicture}
                 alt="Profile"

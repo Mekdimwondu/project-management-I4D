@@ -33,7 +33,7 @@ const getMembers = async () => {
 
  const updateMember = async (memberId, memberData) => {
   try {
-    const response = await apiService.put(`/users/${memberId}`, memberData); // Fixed URL
+    const response = await apiService.put(`/users/users/${memberId}`, memberData); // Fixed URL
     return response.data;
   } catch (error) {
     console.error('Error updating user:', error.response || error.message);
@@ -44,16 +44,16 @@ const getMembers = async () => {
 // Delete user
  const deleteMember = async (memberId) => {
   try {
-    const response = await apiService.delete(`/users/${memberId}`); // Fixed URL
+    const response = await apiService.delete(`/users/users/${memberId}`); // Fixed URL
     return response.data;
   } catch (error) {
     console.error('Error deleting user:', error.response || error.message);
     throw error;
   }
 };
-const feachUserById= async(memberId)=>{
+const fetchUserById= async(memberId)=>{
   try {
-    const response=await apiService.get(`/users/users${memberId}`);
+    const response=await apiService.get(`/users/users/${memberId}`);
     return response.data;
   } catch (error) {
     console.error('error feaching user',error)
@@ -62,4 +62,4 @@ const feachUserById= async(memberId)=>{
 }
 
 // Export the functions
-export { addUser, getMembers, updateMember, deleteMember,feachUserById };
+export { addUser, getMembers, updateMember, deleteMember,fetchUserById };
