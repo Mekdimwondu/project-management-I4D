@@ -30,3 +30,19 @@ export const updateTaskStatus = async (projectId, taskId, status) => {
     throw error;
   }
 };
+export const updateProjectTeamMembers = async (projectId, updatedMembers) => {
+  try {
+    console.log('Sending updated members:', updatedMembers);
+
+    const response = await apiService.put(`/project/${projectId}/team`, {
+      teamMembers: updatedMembers
+    });
+
+    console.log('Response:', response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating team members:', error);
+    throw error;
+  }
+};

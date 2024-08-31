@@ -105,6 +105,25 @@ const updateTaskStatus = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+const updateProjectTeamMembers = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { teamMembers } = req.body;
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    project.teamMembers = teamMembers; // Update team members
+    await project.save();
+
+    res.status(200).json({ message: 'Team members updated successfully', project });
+  } catch (error) {
+    console.error('Error updating team members:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
 
-module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus };
+module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers };
