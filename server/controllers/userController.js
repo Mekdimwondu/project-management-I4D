@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
-
+const { sendPasswordChangeNotification }=require('../utils/emailService');
 const createUser = async (req, res) => {
     try {
         const { 
@@ -15,6 +15,7 @@ const createUser = async (req, res) => {
         });
 
         await user.save();
+        await sendPasswordChangeNotification(user.email);
         res.status(201).send(user);
     } catch (error) {
         res.status(400).send(error);

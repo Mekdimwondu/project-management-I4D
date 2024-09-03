@@ -12,7 +12,7 @@ export const displayUsers = async () => {
 
 const addUser = async (memberData) => {
   try {
-    const response = await apiService.post('/users', memberData);
+    const response = await apiService.post('/users/users', memberData);
     return response.data;
   } catch (error) {
     console.error('Error adding user:', error.response || error.message);
