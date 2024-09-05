@@ -1,31 +1,41 @@
-const Project=require('../models/projectModel')
-
+const Project=require('../models/projectModel');
+const { sendUserAssignToProject } = require('../utils/emailService');
+const { getUserEmails } = require('../utils/userUtils');
 const createProject = async (req, res) => {
   try {
-    const {
-      projectName, 
-      teamMembers,  // Corrected field name
-      deadline,  // Corrected field name
-      priorityLevel, 
-      description,  // Corrected field name
-      tasks,
-    } = req.body;
+    const { projectName, teamMembers, deadline, priorityLevel, description, tasks } = req.body;
 
+    // Validate required fields
+    if (!projectName || !deadline) {
+      return res.status(400).json({ message: 'Project name and deadline are required' });
+    }
+
+    // Fetch email addresses of team members
+    const userIds = teamMembers.map(member => member.value); // Assuming 'value' holds the user ID
+    const emails = await getUserEmails(userIds);
+
+    // Create and save the new project
     const project = new Project({
-      projectName, 
-      teamMembers, 
-      deadline, 
-      priorityLevel, 
-      description, 
+      projectName,
+      teamMembers,
+      deadline,
+      priorityLevel,
+      description,
       tasks,
     });
-  
-      await project.save();
-      res.status(201).send(project);
-    } catch (error) {
-      res.status(400).send({ message: 'Error creating project', error });
-    }
-  };
+
+    await project.save();
+
+    // Await the email sending process
+    await sendUserAssignToProject(emails, projectName);
+
+    res.status(201).json(project);
+  } catch (error) {
+    console.error('Error creating project:', error);
+    res.status(400).json({ message: 'Error creating project', error });
+  }
+};
+
   const getProject = async (req, res) => {
     try {
       const projects = await Project.find(); 

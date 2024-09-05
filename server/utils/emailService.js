@@ -38,4 +38,25 @@ const sendPasswordChangeNotification = async (userEmail) => {
     }
 };
 
-module.exports = { sendPasswordChangeNotification };
+const sendUserAssignToProject= async (userEmail)=>{
+    const mailOptions = {
+        from:{
+            name:'I4D',
+            address: process.env.EMAIL_USERNAME,
+        }, 
+        to: userEmail,
+        subject: "Project Alert from I4D - .",
+        text: 'Your assign to new project cheack if u are feet from this projec has been created.',
+        html: `<p>"You're assigned to a new project. Check if you are a good fit for this project that has been created. If you're not a fit for the project, please contact the admin."</p>`,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent to', userEmail);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
+
+module.exports = { sendPasswordChangeNotification ,sendUserAssignToProject};

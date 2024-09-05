@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { sendProjectData } from '../api/projectApi';
 
 function AddTask() {
   const [tasks, setTasks] = useState([]);
@@ -30,34 +31,17 @@ function AddTask() {
   const postProject = async () => {
     const projectData = {
       ...projectDetails,
-      priorityLevel: projectDetails.priorityLevel,
-      tasks, // Assign the tasks array
+      tasks,
     };
 
     try {
-      const token = localStorage.getItem('User'); // Assuming you're storing the token in local storage
-      console.log('Project Data:', JSON.stringify(projectData));
-
-      const response = await fetch('http://localhost:5000/api/project', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Ensure correct string interpolation
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      if (response.ok) {
-        const savedProject = await response.json();
-        console.log('Project posted successfully:', savedProject);
-        navigate('/project'); // Redirect to the project list page or another page as needed
-      } else {
-        console.error('Failed to post project:', response.statusText);
-      }
+      await sendProjectData(projectData);
+      navigate('/project');
     } catch (error) {
-      console.error('Error posting project:', error);
+      console.error('Failed to post project:', error);
     }
   };
+
 
   return (
     <div className="p-6 space-y-6">

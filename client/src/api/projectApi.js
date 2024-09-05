@@ -46,3 +46,23 @@ export const updateProjectTeamMembers = async (projectId, updatedMembers) => {
     throw error;
   }
 };
+export const sendProjectData = async (project) => {
+  const projectData = {
+    projectName: project.projectName,
+    deadline: project.deadline,
+    description: project.description,
+    priorityLevel: project.priorityLevel,
+    teamMembers: project.teamMembers.map(member => ({
+      value: member.value,  // User ID
+      label: member.label,  // Role (e.g., "Admin")
+      _id: member._id       // Current user's ID
+    })),
+    tasks: project.tasks,
+  };
+  try {
+    const response = await apiService.post('/project', projectData);
+    console.log('Project created successfully:', response.data);
+  } catch (error) {
+    console.error('Error creating project:', error.response || error.message);
+  }
+};

@@ -14,7 +14,7 @@ const TaskSchema = new mongoose.Schema({
 // Define the Project schema
 const ProjectSchema = new mongoose.Schema({
   projectName: { type: String, required: true },
-  teamMembers: [{ value: String, label: String }], // Adjust according to what you need
+  teamMembers: [{ value: String, label: String, _id: mongoose.Schema.Types.ObjectId }], // Adjust according to what you need
   deadline: { type: Date, required: true },
   priorityLevel: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
   description: { type: String },
