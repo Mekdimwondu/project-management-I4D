@@ -45,7 +45,7 @@ export const updateProjectTeamMembers = async (projectId, updatedMembers) => {
     console.error('Error updating team members:', error);
     throw error;
   }
-};
+}; 
 export const sendProjectData = async (project) => {
   const projectData = {
     projectName: project.projectName,
@@ -64,5 +64,14 @@ export const sendProjectData = async (project) => {
     console.log('Project created successfully:', response.data);
   } catch (error) {
     console.error('Error creating project:', error.response || error.message);
+  }
+};
+export const fetchAssignedProjects = async () => {
+  try {
+    const response = await apiService.get('/project/assigned-projects'); 
+    return response.data; 
+  } catch (error) {
+    console.error('Error fetching assigned projects:', error);
+    throw error; 
   }
 };

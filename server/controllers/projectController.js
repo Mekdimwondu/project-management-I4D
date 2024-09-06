@@ -134,6 +134,25 @@ const updateProjectTeamMembers = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+const getAssignedProjects = async (req, res) => {
+  try {
+    const userId = req.user.id; // Convert userId to string for comparison
 
+    console.log("User ID:", userId); // Debugging to ensure userId is retrieved correctly
 
-module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers };
+    // Fetch projects where the logged-in user is part of the team members
+    const projects = await Project.find({ 'teamMembers.value': userId });
+
+    // Check if no projects are found
+    if (projects.length === 0) {
+      return res.status(404).json({ message: 'No projects assigned to this user' });
+    }
+
+    // Return the list of projects
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Error fetching assigned projects:', error);
+    res.status(500).json({ message: 'Internal Server Error', error });
+  }
+};
+module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers,getAssignedProjects };

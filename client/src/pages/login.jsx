@@ -30,7 +30,7 @@ function Login() {
 
   return (
     <section className="flex h-screen">
-      <div className="w-2/4 bg-white flex items-center justify-center">
+      <div className="w-full lg:w-2/4 bg-white flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-center">Login</h2>
@@ -64,7 +64,9 @@ function Login() {
           </form>
         </div>
       </div>
-      <div className="w-2/4 h-screen relative">
+  
+      {/* Image Section - Hidden on small screens */}
+      <div className="hidden lg:block w-2/4 h-screen relative">
         <img className="w-full h-full object-cover" src="src/assets/Rectangle 18.png" alt="img" />
         <div className="absolute inset-0 flex flex-col my-40 mx-40 items-start justify-start space-y-16">
           <h1 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold">
@@ -79,6 +81,7 @@ function Login() {
       </div>
     </section>
   );
+  
 }
 
 export default Login;
