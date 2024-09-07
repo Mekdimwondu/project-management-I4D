@@ -1,5 +1,6 @@
 import apiService from './apiService';
 
+
 export const displayUsers = async () => {
   try {
     const response = await apiService.get('/users/users');

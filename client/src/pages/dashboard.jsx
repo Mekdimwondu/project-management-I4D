@@ -2,30 +2,60 @@ import { useState, useEffect } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { fetchAssignedProjects } from '../api/projectApi';
+import {jwtDecode} from 'jwt-decode';
+
 
 function Dashboard() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [assignedProjects, setAssignedProjects] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state for fetching data
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+ 
 
   useEffect(() => {
-    const loadAssignedProjects = async () => {
+    const loadData = async () => {
       try {
-        const projects = await fetchAssignedProjects();
-        setAssignedProjects(projects);
+        const token = localStorage.getItem('User');
+        if (token) {
+          try {
+            const decodedToken = jwtDecode(token);
+            setUser(decodedToken.id);
+          } catch (error) {
+            console.error('Failed to decode token:', error);
+          }
+        } else {
+          console.warn('Token not found in local storage');
+        }
       } catch (error) {
-        console.error('Error loading assigned projects:', error);
-      } finally {
-        setLoading(false); // Stop loading once data is fetched or on error
+        console.error('Error loading data:', error);
       }
     };
+  
+    loadData();
+  }, []); // Run only once
+  
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (user) {
+        try {
+          const projects = await fetchAssignedProjects(user);
+          setAssignedProjects(projects);
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+  
+    fetchProjects();
+  }, [user]);
 
-    loadAssignedProjects();
-  }, []);
-
+  
   const handleDropdownToggle = () => {
-    setDropdownVisible(!dropdownVisible);
+    setDropdownVisible(prevState => !prevState);
   };
+
 
   return (
     <section className="p-0">
@@ -49,9 +79,11 @@ function Dashboard() {
             </div>
             {dropdownVisible && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded shadow-lg">
-                <Link to="/profile" className="block px-4 py-2 text-gray-800 hover:bg-slate-200 hover:text-lg">
-                  Profile
-                </Link>
+               <Link
+               to={`/profile/${user}`}
+             className="block px-4 py-2 text-gray-800 hover:bg-slate-200 hover:text-lg">
+             Profile
+             </Link>
                 <Link to="/settings" className="block px-4 py-2 text-gray-800 hover:bg-slate-200 hover:text-lg">
                   Settings
                 </Link>
