@@ -155,4 +155,21 @@ const getAssignedProjects = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
-module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers,getAssignedProjects };
+const getCompletionPercentage = async (req, res) => {
+  try {
+    console.log('Request Body:', req.body);
+    const { completionPercentage } = req.body;
+    const project = await Project.findByIdAndUpdate(
+      req.params.projectId, 
+      { completionPercentage }, 
+      { new: true }
+    );
+    console.log('Updated Project:', project);
+    res.status(200).json(project);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+
+module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers,getAssignedProjects,getCompletionPercentage };

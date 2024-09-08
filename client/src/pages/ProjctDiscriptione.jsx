@@ -14,14 +14,6 @@ function ProjectDescription() {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
 
-  const toggleDropdown = (index) => {
-    setDropdownVisible(dropdownVisible === index ? null : index);
-  };
-
-  const handleTaskClick = (index) => {
-    setExpandedTaskIndex(expandedTaskIndex === index ? null : index);
-  };
-
   useEffect(() => {
     const getProject = async () => {
       try {
@@ -41,7 +33,7 @@ function ProjectDescription() {
         const token = localStorage.getItem('User');
         const response = await fetch('http://localhost:5000/api/users/users', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -50,7 +42,7 @@ function ProjectDescription() {
         }
 
         const data = await response.json();
-        const users = data.map(user => ({
+        const users = data.map((user) => ({
           value: user._id,
           label: user.firstName,
         }));
@@ -64,25 +56,80 @@ function ProjectDescription() {
     fetchUsers();
   }, [projectId]);
 
- 
+  const toggleDropdown = (index) => {
+    setDropdownVisible(dropdownVisible === index ? null : index);
+  };
+
+  const handleTaskClick = (index) => {
+    setExpandedTaskIndex(expandedTaskIndex === index ? null : index);
+  };
+
+  const calculateAveragePercentage = (tasks) => {
+    if (tasks.length === 0) return 0;
+
+    const totalPercentage = tasks.reduce((total, task) => {
+      let percentage;
+      switch (task.status) {
+        case 'Completed':
+          percentage = 100;
+          break;
+        case 'In Progress':
+          percentage = 50;
+          break;
+        case 'Pending':
+          percentage = 0;
+          break;
+        default:
+          percentage = 0;
+      }
+      return total + percentage;
+    }, 0);
+
+    return totalPercentage / tasks.length;
+  };
 
   const handleStatusChange = async (taskIndex, newStatus) => {
+    const updatedTasks = tasks.map((task, index) => {
+      if (index === taskIndex) {
+        return { ...task, status: newStatus };
+      }
+      return task;
+    });
 
-    const task = tasks[taskIndex];
-
-    if (task.status === newStatus) return;
+    const averagePercentage = calculateAveragePercentage(updatedTasks);
 
     try {
-      await updateTaskStatus(projectId, task._id, newStatus);
+      // Optimistically update the UI
+      setTasks(updatedTasks);
 
-      const updatedTasks = tasks.map((t, index) => {
-        if (index === taskIndex) return { ...t, status: newStatus };
-        return t;
+      // Update task status
+      await updateTaskStatus(projectId, tasks[taskIndex]._id, newStatus);
+
+      // Update project percentage
+      const percentageResponse = await fetch(`http://localhost:5000/api/project/${projectId}/completion`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('User')}`,
+        },
+        body: JSON.stringify({ completionPercentage: averagePercentage }),
       });
 
-      setTasks(updatedTasks);
+      if (!percentageResponse.ok) {
+        throw new Error(`Error: ${percentageResponse.statusText}`);
+      }
+
+      console.log('Task status and project percentage updated successfully');
     } catch (error) {
-      console.error('Error updating task status:', error);
+      console.error('Error updating task status and project percentage:', error);
+
+      // Revert to the previous state if the request fails
+      try {
+        const data = await fetchProjectById(projectId);
+        setTasks(data.tasks || []);
+      } catch (fetchError) {
+        console.error('Error fetching updated project data:', fetchError);
+      }
     }
   };
 
@@ -115,18 +162,18 @@ function ProjectDescription() {
           <div className="bg-white p-6 shadow-md rounded-md mb-4">
             <h1 className="text-3xl font-bold mb-4">{project.projectName}</h1>
             <div className="text-gray-700 mb-4">
-  {project.description.split(/(?<=[.?!])\s+|(?=\d+\.\s)|(?<=\s["“].*?["”])/g).map((part, index) => (
-    <p key={index}>{part}</p>
-  ))}
-</div>
+              {project.description.split(/(?<=[.?!])\s+|(?=\d+\.\s)|(?<=\s["“].*?["”])/g).map((part, index) => (
+                <p key={index}>{part}</p>
+              ))}
+            </div>
           </div>
 
           {/* Team Members Section */}
           <div className="bg-white p-6 shadow-md rounded-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Team Members</h2>
-              <button 
-                onClick={() => setIsEditingTeam(!isEditingTeam)} 
+              <button
+                onClick={() => setIsEditingTeam(!isEditingTeam)}
                 className="text-blue-500 hover:underline"
               >
                 {isEditingTeam ? 'Cancel' : 'Edit'}
@@ -165,8 +212,8 @@ function ProjectDescription() {
           <h2 className="text-2xl font-semibold mb-4">Tasks</h2>
           <ul className="space-y-4">
             {tasks.map((task, index) => (
-              <li 
-                key={task._id} 
+              <li
+                key={task._id}
                 className="bg-white p-4 shadow-md rounded-md cursor-pointer"
                 onClick={() => handleTaskClick(index)}
               >
@@ -183,7 +230,11 @@ function ProjectDescription() {
 
                   <span
                     className={`px-2 py-1 rounded-md text-white ${
-                      task.status === 'Pending' ? 'bg-yellow-500' : task.status === 'In Progress' ? 'bg-blue' : 'bg-green'
+                      task.status === 'Pending'
+                        ? 'bg-yellow-500'
+                        : task.status === 'In Progress'
+                        ? 'bg-blue'
+                        : 'bg-green'
                     }`}
                   >
                     {task.status}
@@ -202,25 +253,19 @@ function ProjectDescription() {
                     {dropdownVisible === index && (
                       <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg">
                         <button
-                          className={`block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-light ${
-                            task.status === 'Pending' ? 'bg-gray-200' : ''
-                          }`}
+                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
                           onClick={() => handleStatusChange(index, 'Pending')}
                         >
                           Pending
                         </button>
                         <button
-                          className={`block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-light ${
-                            task.status === 'In Progress' ? 'bg-gray-200' : ''
-                          }`}
+                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
                           onClick={() => handleStatusChange(index, 'In Progress')}
                         >
                           In Progress
                         </button>
                         <button
-                          className={`block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-light ${
-                            task.status === 'Completed' ? 'bg-gray-200' : ''
-                          }`}
+                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
                           onClick={() => handleStatusChange(index, 'Completed')}
                         >
                           Completed
@@ -229,13 +274,15 @@ function ProjectDescription() {
                     )}
                   </div>
                 </div>
-
-                {/* Task Description */}
                 {expandedTaskIndex === index && (
-                  <div className="mt-2 text-gray-600">
-                    <p>{task.taskDescription}</p>
-                  </div>
-                )}
+     <div
+        className="mt-4 text-gray-600 overflow-auto whitespace-pre-wrap break-words"
+        style={{ maxHeight: '200px' }} // Optional: to limit the height and add a scrollbar
+       >
+        <p>{task.taskDescription}</p>
+      </div>
+)}
+
               </li>
             ))}
           </ul>

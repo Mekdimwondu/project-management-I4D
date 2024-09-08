@@ -17,16 +17,14 @@ const ProjectSchema = new mongoose.Schema({
   teamMembers: [{ value: String, label: String, _id: mongoose.Schema.Types.ObjectId }], // Adjust according to what you need
   deadline: { type: Date, required: true },
   priorityLevel: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+  completionPercentage: { type: Number, default: 0 },
   description: { type: String },
   tasks: [TaskSchema], // Ensure this matches your frontend
   memos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Memo' }],
 }, {
   timestamps: true, 
 });
-;
 
-
-// Compile the Project model from the schema
 const Project = mongoose.model('Project', ProjectSchema);
 
 module.exports = Project;
