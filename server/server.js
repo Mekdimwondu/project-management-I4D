@@ -2,13 +2,15 @@ const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
 const mongodb = require('./config/db');
-const http = require('http'); // Add this line
-const { Server } = require('socket.io'); // Add this line
+const http = require('http');
+const { Server } = require('socket.io');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const userRouter = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const memoRoutes = require('./routes/memoRoutes');
+const messageRoutes = require('./routes/messageRoutes'); // Added message routes
+const groupRoutes = require('./routes/groupRoutes');
 
 dotenv.config();
 
@@ -17,7 +19,7 @@ const app = express();
 // Middleware to enable CORS
 app.use(cors({
   origin: 'http://localhost:5173', // Allow requests from your frontend
-  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Allowed methods
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed methods
   credentials: true, // Allow cookies to be sent
 }));
 
@@ -29,10 +31,12 @@ mongodb();
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes); 
-app.use('/api/users',userRouter)
-app.use('/api/project',projectRoutes)
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/users', userRouter);
+app.use('/api/project', projectRoutes);
 app.use('/api', memoRoutes);
+app.use('/api', messageRoutes); // Added message routes
+app.use('/api/', groupRoutes);
 
 // Create an HTTP server
 const server = http.createServer(app);
@@ -49,17 +53,17 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  // Handle user joining a project room
-  socket.on('joinProject', (projectId) => {
-    socket.join(projectId);
-    console.log(`User ${socket.id} joined project ${projectId}`);
+  // Handle user joining a project room or individual chat
+  socket.on('joinRoom', (roomId) => {
+    socket.join(roomId);
+    console.log(`User ${socket.id} joined room ${roomId}`);
   });
 
-  // Handle sending a message
+  // Handle sending a message to a group or individual
   socket.on('sendMessage', (message) => {
-    const { projectId, content } = message;
-    io.to(projectId).emit('receiveMessage', message);
-    console.log(`Message sent to project ${projectId}:`, content);
+    const { roomId, content } = message;
+    io.to(roomId).emit('receiveMessage', message);
+    console.log(`Message sent to room ${roomId}:`, content);
   });
 
   // Handle user disconnect
@@ -69,4 +73,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+module.exports = { io }; // Export io if needed elsewhere

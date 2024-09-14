@@ -1,11 +1,12 @@
 import { fetchUserById } from '../api/userApi';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 
 function UserProfile() {
   const [user, setUser] = useState(null);
   const { memberId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
@@ -19,6 +20,10 @@ function UserProfile() {
     getUser();
   }, [memberId]);
 
+  const handleEditClick = () => {
+    navigate(`/edit-user/${memberId}`); // Navigate to the edit page with the user ID
+  };
+
   if (!user) {
     return <div>Loading...</div>; // Loading state
   }
@@ -28,17 +33,16 @@ function UserProfile() {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className='flex justify-between items-center mb-6'>
           <h2 className="text-3xl font-semibold text-center mb-6">User Profile</h2>
-          <FaEdit className="text-gray-600 cursor-pointer" size={24} />
+          <FaEdit 
+            className="text-gray-600 cursor-pointer" 
+            size={24} 
+            onClick={handleEditClick} // Handle click to navigate
+          />
         </div>
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between items-center">
             <div className="sm:w-1/3">
-              {/* Uncomment this block if you have a profile picture */}
-              {/* <img
-                src={user.profilePicture}
-                alt="Profile"
-                className="rounded-full w-32 h-32 sm:w-48 sm:h-48 object-cover mx-auto sm:mx-0"
-              /> */}
+              {/* Placeholder for profile image or additional content */}
             </div>
             <div className="sm:w-2/3 sm:pl-6">
               <h3 className="text-2xl font-semibold">{user.firstName} {user.lastName}</h3>

@@ -85,9 +85,9 @@ function Users() {
                         <tr>
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Name</th>
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Email</th>
-                            <th className="px-4 py-2 text-left text-gray-600 font-medium">Job</th>
+                            <th className="px-4 py-2 text-left text-gray-600 font-medium">Phone</th>
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Role</th>
-                            <th className="px-4 py-2 text-left text-gray-600 font-medium">Remove</th>
+                            {/* <th className="px-4 py-2 text-left text-gray-600 font-medium">Remove</th> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -95,12 +95,12 @@ function Users() {
                             <tr key={user._id} className="cursor-pointer" onClick={() => handleRowClick(user._id)}>
                                 <td className="border-t px-4 py-2">{`${user.firstName} ${user.lastName}`}</td>
                                 <td className="border-t px-4 py-2">{user.email}</td>
-                                <td className="border-t px-4 py-2">{user.job}</td>
+                                <td className="border-t px-4 py-2">{user.phoneNumber}</td>
                                 <td className="border-t px-4 py-2">{user.role}</td>
                                 <td className="border-t px-4 py-2">
-                                    <button className="bg-red-500 text-white px-2 py-1 rounded-md shadow-md hover:bg-red-600 transition duration-200">
+                                    {/* <button className="bg-red-500 text-white px-2 py-1 rounded-md shadow-md hover:bg-red-600 transition duration-200">
                                         Remove
-                                    </button>
+                                    </button> */}
                                 </td>
                             </tr>
                         ))}

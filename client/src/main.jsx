@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import './index.css';
 import Dashboard from './pages/dashboard';
-import Message from './pages/message';
+// import Message from './pages/message';
 import Project from './pages/project';
 import Setting from './pages/setting';
 import Users from './pages/users';
@@ -23,6 +23,8 @@ import SessionExpired from './components/SessionExpired'; // Import the SessionE
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import ProjctDiscriptione from './pages/ProjctDiscriptione';
+import EditUser from './pages/EditUser';
+import Chat from './pages/chat';
 
 const router = createBrowserRouter([
   {
@@ -75,7 +77,7 @@ const router = createBrowserRouter([
           },
           {
             path: '/message',
-            element: <Message />,
+            element: <Chat />,
           },
           {
             path: '/users',
@@ -100,7 +102,12 @@ const router = createBrowserRouter([
           {
             path: '/profile/:memberId',
             element: <UserProfile />,
+          },
+          {
+            path:'/edit-user/:memberId',
+            element:<EditUser/>,
           }
+         
         ],
       }
     ],
