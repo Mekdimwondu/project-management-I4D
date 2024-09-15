@@ -75,3 +75,16 @@ export const fetchAssignedProjects = async () => {
     throw error; 
   }
 };
+export const addTaskToProject = async (projectId, task) => {
+  try {
+    // Ensure task has the correct fields
+    const response = await apiService.post(`/project/${projectId}/tasks`, {
+      taskName: task.name,
+      taskDescription: task.description
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding task to project:', error);
+    throw error;
+  }
+}

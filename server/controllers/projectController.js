@@ -170,6 +170,37 @@ const getCompletionPercentage = async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 };
+// src/controllers/projectController.js
+const addTaskToProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { taskName, taskDescription } = req.body; // Match the expected fields
+
+  try {
+    // Find the project
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Create a new task
+    const newTask = {
+      taskName,       // Ensure you use the correct field names
+      taskDescription,
+      status: 'Pending', // Default status
+      createdAt: new Date(),
+    };
+
+    // Add the task to the project's task list
+    project.tasks.push(newTask);
+    await project.save();
+
+    res.status(201).json(newTask);
+  } catch (error) {
+    console.error('Error adding task to project:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
-module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers,getAssignedProjects,getCompletionPercentage };
+
+module.exports = { createProject,getProject,getProjectById, updateProject,deleteProject,updateTaskStatus,updateProjectTeamMembers,getAssignedProjects,getCompletionPercentage ,addTaskToProject};

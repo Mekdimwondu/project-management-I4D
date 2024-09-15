@@ -2,7 +2,7 @@ const express = require('express');
 const projectRoutes = express.Router();
 const authMiddleware = require('../middleware/authmiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
-const { createProject, getProject, updateProject, deleteProject, getProjectById, updateTaskStatus, updateProjectTeamMembers, getAssignedProjects, getCompletionPercentage } = require('../controllers/projectController');
+const { createProject, getProject, updateProject, deleteProject, getProjectById, updateTaskStatus, updateProjectTeamMembers, getAssignedProjects, getCompletionPercentage, addTaskToProject } = require('../controllers/projectController');
 
 projectRoutes.post('/', authMiddleware, adminMiddleware, createProject);
 projectRoutes.get('/', authMiddleware, getProject);
@@ -13,4 +13,5 @@ projectRoutes.delete('/:id', authMiddleware, adminMiddleware, deleteProject);
 projectRoutes.put('/:projectId/tasks/:taskId', updateTaskStatus);
 projectRoutes.put('/:projectId/team', authMiddleware,adminMiddleware, updateProjectTeamMembers);
 projectRoutes.put('/:projectId/completion', authMiddleware, getCompletionPercentage);
+projectRoutes.post('/:projectId/tasks',authMiddleware, adminMiddleware,addTaskToProject);
 module.exports = projectRoutes;
