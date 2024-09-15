@@ -3,22 +3,25 @@ import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import {jwtDecode} from 'jwt-decode'; // Correct jwt-decode import
 import apiService from '../api/apiService'; // Custom apiService
-import axios from 'axios';
 
 function Message({ groupId, groupName }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  // const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(null); // Store the current user's ID
+  const [userName, setUserName] = useState({ firstName: '', lastName: '' }); // Store the user's name
+  const [socket, setSocket] = useState(null); // Store the socket connection
 
-  // Decode JWT token and set Admin status
+  // Decode JWT token and set user ID and name
   useEffect(() => {
     const token = localStorage.getItem('User');
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        // setIsAdmin(decodedToken.role === 'Admin');
         setUserId(decodedToken.id); // Store the current user's ID
+        setUserName({
+          firstName: decodedToken.firstName,
+          lastName: decodedToken.lastName,
+        }); // Store the current user's name
       } catch (error) {
         console.error('Error decoding token:', error);
       }
@@ -29,8 +32,14 @@ function Message({ groupId, groupName }) {
   useEffect(() => {
     if (!groupId) return; // Ensure groupId is present
 
-    const socket = io('http://localhost:5000'); // Replace with your socket server URL
+    // Initialize socket connection once
+    const newSocket = io('http://localhost:5000'); // Replace with your socket server URL
+    setSocket(newSocket);
 
+    // Join the room
+    newSocket.emit('joinRoom', groupId);
+
+    // Fetch messages from the server
     const fetchMessages = async () => {
       try {
         const response = await apiService.get(`/messages/${groupId}`);
@@ -46,24 +55,23 @@ function Message({ groupId, groupName }) {
 
     fetchMessages();
 
-    // Handle incoming socket messages
+    // Handle incoming messages
     const handleNewMessage = (message) => {
       if (message.groupId === groupId) {
         setMessages((prevMessages) => [...prevMessages, message]);
       }
     };
 
-    socket.on('receiveMessage', handleNewMessage);
+    newSocket.on('receiveMessage', handleNewMessage);
 
     return () => {
-      socket.off('receiveMessage', handleNewMessage);
-      socket.disconnect(); // Clean up socket connection
+      newSocket.disconnect(); // Clean up socket connection on component unmount
     };
   }, [groupId]);
 
   // Function to send new messages
   const sendMessage = () => {
-    if (!newMessage) return; // Prevent sending empty messages
+    if (!newMessage || !socket) return; // Prevent sending empty messages
 
     const token = localStorage.getItem('User');
     let decodedToken;
@@ -79,27 +87,40 @@ function Message({ groupId, groupName }) {
     const messageData = {
       content: newMessage,
       groupId,
-      sender: decodedToken.id, // Only pass the user's ID as sender
+      sender: {
+        _id: decodedToken.id,
+        firstName: decodedToken.firstName,
+        lastName: decodedToken.lastName,
+      }, // Pass user's full name along with the ID
       attachments: [], // If any attachments are present, pass them here
     };
 
-    axios
-      .post(`http://localhost:5000/api/messages/${groupId}`, messageData, {
+    // Send the message to the server via HTTP request
+    apiService
+      .post(`/messages/${groupId}`, messageData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('User')}`, // Include JWT token in header
         },
       })
-      .then(() => {
-        setNewMessage(''); // Clear input field after sending
-        const socket = io('http://localhost:5000'); // Replace with your socket server URL
-        socket.emit('sendMessage', messageData); // Emit the message through the socket
+      .then((response) => {
+        // Do not add the message locally here, wait for the socket event
+        setNewMessage(''); // Clear the input field after sending
+
+        // Emit the message through the socket to notify other clients
+        socket.emit('sendMessage', {
+          ...messageData,
+          sender: {
+            _id: userId,
+            firstName: userName.firstName,
+            lastName: userName.lastName,
+          }, // Include the user's name when emitting via socket
+        });
       })
       .catch((error) => {
         console.error('Error sending message:', error);
       });
   };
 
- 
   return (
     <div className="flex flex-col h-full">
       {/* Group Name */}
@@ -113,15 +134,11 @@ function Message({ groupId, groupName }) {
           messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
-                message.sender?._id === userId ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex ${message.sender?._id === userId ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-xs p-3 rounded-lg shadow-md ${
-                  message.sender?._id === userId
-                    ? 'bg-blue text-white'
-                    : 'bg-gray text-black'
+                  message.sender?._id === userId ? 'bg-blue text-white' : 'bg-gray text-black'
                 }`}
               >
                 <p className="font-semibold">

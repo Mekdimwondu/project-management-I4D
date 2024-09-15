@@ -61,9 +61,15 @@ io.on('connection', (socket) => {
 
   // Handle sending a message to a group or individual
   socket.on('sendMessage', (message) => {
-    const { roomId, content } = message;
-    io.to(roomId).emit('receiveMessage', message);
-    console.log(`Message sent to room ${roomId}:`, content);
+    const roomId = message.groupId || message.roomId; // Use either groupId or roomId
+    const { content } = message;
+  
+    if (roomId) {
+      io.to(roomId).emit('receiveMessage', message);
+      console.log(`Message sent to room ${roomId}:`, content);
+    } else {
+      console.error('roomId is undefined. Message not sent.');
+    }
   });
 
   // Handle user disconnect
