@@ -19,14 +19,19 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Logout from './components/logout';
 import AddProject from './pages/addProject';
 import AddTask from './pages/addtask';
-import SessionExpired from './components/SessionExpired'; // Import the SessionExpired component
+import SessionExpired from './components/SessionExpired'; 
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import ProjctDiscriptione from './pages/ProjctDiscriptione';
 import EditUser from './pages/EditUser';
 import Chat from './pages/chat';
+import PasswordChange from './components/passwordChange';
 
 const router = createBrowserRouter([
+  {
+    path: '/reset-password',
+    element: <PasswordChange />, // Ensure you have this component
+  },
   {
     path: '/login',
     element: <Login />,
@@ -106,8 +111,7 @@ const router = createBrowserRouter([
           {
             path:'/edit-user/:memberId',
             element:<EditUser/>,
-          }
-         
+          }, 
         ],
       }
     ],

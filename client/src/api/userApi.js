@@ -13,13 +13,26 @@ export const displayUsers = async () => {
 
 const addUser = async (memberData) => {
   try {
+    // Step 1: Create the user
     const response = await apiService.post('/users/users', memberData);
-    return response.data;
+
+    // Extract the user's email from the response
+    const email = response.data.email; 
+
+    // Step 2: Send the password reset request
+    const response2 = await apiService.post('/users/request-password-reset', { email });
+
+    // Return both responses in one object
+    return {
+      createUserResponse: response.data,
+      passwordResetResponse: response2.data
+    };
   } catch (error) {
     console.error('Error adding user:', error.response || error.message);
     throw error;
   }
 };
+
 
 // Function to get all users
 const getMembers = async () => {

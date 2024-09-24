@@ -88,3 +88,12 @@ export const addTaskToProject = async (projectId, task) => {
     throw error;
   }
 }
+export const deleteProject = async (projectId) => {
+  try {
+    const response = await apiService.delete(`/project/${projectId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    throw error;
+  }
+};

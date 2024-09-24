@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Select from 'react-select';
 import { fetchProjectById, updateProjectTeamMembers, updateTaskStatus } from '../api/projectApi';
+import {jwtDecode} from 'jwt-decode'; // Corrected import
 
 function ProjectDescription() {
   const { projectId } = useParams();
@@ -13,7 +14,24 @@ function ProjectDescription() {
   const [users, setUsers] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // Proper state for admin check
 
+  // Check if the user is admin
+  useEffect(() => {
+    const storedUserToken = localStorage.getItem('User');
+    if (storedUserToken) {
+      try {
+        const user = jwtDecode(storedUserToken);
+        if (user.role === 'Admin') {
+          setIsAdmin(true); // Set isAdmin to true if user is Admin
+        }
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+      }
+    }
+  }, []); // Run once when the component mounts
+
+  // Fetch project and users data
   useEffect(() => {
     const getProject = async () => {
       try {
@@ -55,6 +73,20 @@ function ProjectDescription() {
     getProject();
     fetchUsers();
   }, [projectId]);
+
+  // Handle team member updates (only if editing and admin)
+  useEffect(() => {
+    if (isAdmin && isEditingTeam) {
+      const updateTeamMembers = async () => {
+        try {
+          await updateProjectTeamMembers(projectId, selectedMembers);
+        } catch (error) {
+          console.error('Error updating team members:', error);
+        }
+      };
+      updateTeamMembers();
+    }
+  }, [selectedMembers, isAdmin, isEditingTeam, projectId]); // Only update when necessary
 
   const toggleDropdown = (index) => {
     setDropdownVisible(dropdownVisible === index ? null : index);
@@ -99,13 +131,9 @@ function ProjectDescription() {
     const averagePercentage = calculateAveragePercentage(updatedTasks);
 
     try {
-      // Optimistically update the UI
-      setTasks(updatedTasks);
-
-      // Update task status
+      setTasks(updatedTasks); // Optimistically update UI
       await updateTaskStatus(projectId, tasks[taskIndex]._id, newStatus);
 
-      // Update project percentage
       const percentageResponse = await fetch(`http://localhost:5000/api/project/${projectId}/completion`, {
         method: 'PUT',
         headers: {
@@ -122,8 +150,6 @@ function ProjectDescription() {
       console.log('Task status and project percentage updated successfully');
     } catch (error) {
       console.error('Error updating task status and project percentage:', error);
-
-      // Revert to the previous state if the request fails
       try {
         const data = await fetchProjectById(projectId);
         setTasks(data.tasks || []);
@@ -133,22 +159,8 @@ function ProjectDescription() {
     }
   };
 
-  useEffect(() => {
-    if (project) {
-      const updateTeamMembers = async () => {
-        try {
-          await updateProjectTeamMembers(projectId, selectedMembers);
-        } catch (error) {
-          console.error('Error updating team members:', error);
-        }
-      };
-
-      updateTeamMembers();
-    }
-  }, [selectedMembers, project, projectId]);
-
   const handleTeamMemberChange = (selectedOptions) => {
-    setSelectedMembers(selectedOptions);
+    setSelectedMembers(selectedOptions); // Update selected members when changed
   };
 
   if (loading) return <div>Loading...</div>;
@@ -169,42 +181,44 @@ function ProjectDescription() {
           </div>
 
           {/* Team Members Section */}
-          <div className="bg-white p-6 shadow-md rounded-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Team Members</h2>
-              <button
-                onClick={() => setIsEditingTeam(!isEditingTeam)}
-                className="text-blue-500 hover:underline"
-              >
-                {isEditingTeam ? 'Cancel' : 'Edit'}
-              </button>
+          {isAdmin && (
+            <div className="bg-white p-6 shadow-md rounded-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">Team Members</h2>
+                <button
+                  onClick={() => setIsEditingTeam(!isEditingTeam)}
+                  className="text-blue-500 hover:underline"
+                >
+                  {isEditingTeam ? 'Cancel' : 'Edit'}
+                </button>
+              </div>
+              {isEditingTeam ? (
+                <Select
+                  isMulti
+                  value={selectedMembers}
+                  onChange={handleTeamMemberChange}
+                  options={users}
+                  placeholder="Select team members"
+                  className="w-full"
+                  styles={{
+                    menu: (provided) => ({
+                      ...provided,
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                    }),
+                  }}
+                />
+              ) : (
+                <ul className="space-y-2">
+                  {project.teamMembers.map((member) => (
+                    <li key={member.value} className="text-gray-700">
+                      {member.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-            {isEditingTeam ? (
-              <Select
-                isMulti
-                value={selectedMembers}
-                onChange={handleTeamMemberChange}
-                options={users}
-                placeholder="Select team members"
-                className="w-full"
-                styles={{
-                  menu: (provided) => ({
-                    ...provided,
-                    maxHeight: '150px',
-                    overflowY: 'auto',
-                  }),
-                }}
-              />
-            ) : (
-              <ul className="space-y-2">
-                {project.teamMembers.map((member) => (
-                  <li key={member.value} className="text-gray-700">
-                    {member.label}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Right Section - Tasks */}
@@ -233,8 +247,8 @@ function ProjectDescription() {
                       task.status === 'Pending'
                         ? 'bg-yellow-500'
                         : task.status === 'In Progress'
-                        ? 'bg-blue'
-                        : 'bg-green'
+                        ? 'bg-blue' 
+                        : 'bg-green' 
                     }`}
                   >
                     {task.status}
@@ -242,7 +256,7 @@ function ProjectDescription() {
 
                   <div className="relative">
                     <button
-                      className="text-gray-500 hover:text-gray-light hover:font-semibold"
+                      className="text-gray-500 hover:text-gray-700 hover:font-semibold"
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleDropdown(index);
@@ -275,14 +289,10 @@ function ProjectDescription() {
                   </div>
                 </div>
                 {expandedTaskIndex === index && (
-     <div
-        className="mt-4 text-gray-600 overflow-auto whitespace-pre-wrap break-words"
-        style={{ maxHeight: '200px' }} // Optional: to limit the height and add a scrollbar
-       >
-        <p>{task.taskDescription}</p>
-      </div>
-)}
-
+                  <div className="mt-4 text-gray-600 overflow-auto whitespace-pre-wrap break-words" style={{ maxHeight: '200px' }}>
+                    <p>{task.taskDescription}</p>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

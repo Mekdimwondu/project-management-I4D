@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { fetchAssignedProjects } from '../api/projectApi';
-import {jwtDecode} from 'jwt-decode';
-
+import {jwtDecode} from 'jwt-decode';  // Fix: Correct the import
 
 function Dashboard() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -135,8 +134,8 @@ function Dashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="px-6 py-4 text-center">
-                    No projects assigned to you
+                  <td colSpan="3" className="px-6 py-4 text-center text-gray-500">
+                    No projects assigned to you.
                   </td>
                 </tr>
               )}

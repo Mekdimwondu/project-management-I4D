@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchProjects, addTaskToProject } from '../api/projectApi'; // Ensure addTaskToProject is defined
+import { fetchProjects, addTaskToProject,deleteProject } from '../api/projectApi'; // Ensure addTaskToProject is defined
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
@@ -28,6 +28,9 @@ function Project() {
   const [selectedProjectId, setSelectedProjectId] = useState(null); // Track selected project ID
   const [taskName, setTaskName] = useState(''); // Task name
   const [taskDescription, setTaskDescription] = useState(''); // Task description
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // To show/hide delete modal
+const [projectToDelete, setProjectToDelete] = useState(null);  // Store the project to delete
+
   const navigate = useNavigate();
 
   const handleAddProject = () => {
@@ -37,15 +40,26 @@ function Project() {
   const toggleDropdown = (index) => {
     setDropdownVisible(dropdownVisible === index ? null : index);
   };
-
-  const handleDeleteTask = (projectId, e) => {
+  const openDeleteModal = (projectId, e) => {
     e.stopPropagation();
-    console.log(`Edit project with ID: ${projectId}`);
+    setProjectToDelete(projectId); // Store project to delete
+    setShowDeleteModal(true); // Show delete confirmation modal
   };
 
-  const handleDelete = (projectId, e) => {
-    e.stopPropagation();
-    console.log(`Delete project with ID: ${projectId}`);
+  const confirmDelete = async () => {
+    try {
+      await deleteProject(projectToDelete); // Call API to delete the project
+      setProjects(await fetchProjects()); // Refresh the projects list
+      setShowDeleteModal(false); // Close the delete modal
+      setProjectToDelete(null); // Reset the project to delete
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false); // Close the modal
+    setProjectToDelete(null);  // Reset the project to delete
   };
 
   const handleAddTask = (projectId, e) => {
@@ -120,7 +134,7 @@ function Project() {
         {isAdmin && (
           <button 
             onClick={handleAddProject} 
-            className="bg-blue-500 text-white px-5 py-2 rounded-md shadow-lg hover:bg-blue-600 transition duration-200">
+            className="bg-blue text-white px-5 py-2 rounded-md shadow-lg hover:bg-blue-600 transition duration-200">
             Add New Project
           </button>
         )}
@@ -150,24 +164,19 @@ function Project() {
                         />
                         {dropdownVisible === index && (
                           <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-md">
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              onClick={(e) => handleDeleteTask(project._id, e)}
-                            >
-                              Edit Task
-                            </button>
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              onClick={(e) => handleDelete(project._id, e)}
-                            >
-                              Delete Project
-                            </button>
-                            <button
+                             <button
                               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                               onClick={(e) => handleAddTask(project._id, e)}
                             >
                               Add Task
                             </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={(e) => openDeleteModal(project._id, e)}
+                            >
+                              Delete Project
+                            </button>
+                           
                           </div>
                         )}
                       </>
@@ -248,6 +257,29 @@ function Project() {
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
                 Add Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+       {/* Delete Confirmation Modal */}
+       {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+            <h2 className="text-xl font-semibold mb-4">Delete Project</h2>
+            <p className="mb-6">Are you sure you want to permanently delete this project?</p>
+            <div className="flex justify-between gap-4">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 bg-gray-light text-black rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+              >
+                Delete
               </button>
             </div>
           </div>
