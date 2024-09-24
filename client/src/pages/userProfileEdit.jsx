@@ -27,20 +27,20 @@ function UserProfileEdit() {
   const handleSave = async () => {
     try {
       await updateMember(memberId, user);
-      navigate('/users');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Failed to update user data', error);
     }
   };
 
   const handleBack = () => {
-    navigate('/users');
+    navigate('/dashboard');
   };
 
   if (!user) return <div>Loading...</div>;
 
   return (
-    <section className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
+    <section className="p-6 bg-gray-200 min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <h1 className="text-3xl font-semibold mb-6">Edit User</h1>
         <form className="space-y-4">
@@ -81,14 +81,14 @@ function UserProfileEdit() {
           <button
             type="button"
             onClick={handleBack}
-            className="w-full bg-gray text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700 transition duration-300"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="w-full bg-blue2 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
           >
             Save
           </button>

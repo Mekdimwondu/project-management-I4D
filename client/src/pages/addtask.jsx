@@ -85,7 +85,7 @@ function AddTask() {
           />
           <button
             onClick={addTask}
-            className="ml-4 bg-blue2 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
+            className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
           >
             Add Task
           </button>
@@ -95,7 +95,7 @@ function AddTask() {
       <div className="flex justify-end mt-6">
         <button
           onClick={postProject}
-          className="bg-green text-white px-6 py-2 rounded-md shadow-md hover:bg-green-600 transition duration-200"
+          className="bg-green-500 text-white px-6 py-2 rounded-md shadow-md hover:bg-green-600 transition duration-200"
         >
           Post Project
         </button>

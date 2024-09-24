@@ -72,27 +72,27 @@ function GroupList({ onGroupSelect, onUserSelect, setIsCreatingGroup }) {
   };
 
   return (
-    <div className="flex flex-col h-full p-4 space-y-4 bg-white rounded-md shadow-md">
+    <div className="flex flex-col h-full p-4 space-y-4 bg-slate-700 rounded-md shadow-md">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Group Chat</h2>
+        <h2 className="text-2xl font-bold text-white">Group Chat</h2>
         {isAdmin && (
           <button
             onClick={() => setIsCreatingGroupState(true)}
-            className="bg-blue2 text-white px-4 py-2 rounded-md"
+            className="bg-blue-400 text-white px-4 py-2 rounded-md"
           >
             Add
           </button>
         )}
       </div>
 
-      <div className="text-xl font-semibold mb-2">Groups</div>
+      <div className="text-xl font-semibold mb-2 text-white">Groups</div>
       <div className="flex-1 overflow-y-auto">
         <ul className="space-y-2">
           {groups.length > 0 ? (
             groups.map((group,index) => (
               <li
                 key={group.length||index}
-                className="text-lg cursor-pointer hover:underline"
+                className="text-lg cursor-pointer text-white hover:bg-slate-600"
                 onClick={() => onGroupSelect(group._id, group.name)}
               >
                 {group.name}
@@ -167,13 +167,13 @@ function GroupList({ onGroupSelect, onUserSelect, setIsCreatingGroup }) {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setIsCreatingGroupState(false)}
-                className="bg-gray text-black px-4 py-2 rounded-md"
+                className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateGroup}
-                className="bg-blue text-white px-4 py-2 rounded-md"
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
               >
                 Create
               </button>

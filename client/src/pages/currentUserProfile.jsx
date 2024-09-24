@@ -29,7 +29,7 @@ function CurrentUserProfile() {
   }
 
   return (
-    <section className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
+    <section className="p-6 bg-gray-200 min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <div className='flex justify-between items-center mb-6'>
           <h2 className="text-3xl font-semibold text-center mb-6">User Profile</h2>

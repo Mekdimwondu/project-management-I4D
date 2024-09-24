@@ -98,15 +98,15 @@ function Dashboard() {
       <div className="flex space-x-6 px-6 pt-6">
         <div className="flex-1 text-white bg-[#402E7A] p-4 shadow-md rounded-md h-32">
           <h5 className="text-lg font-semibold mb-2">Total Projects</h5>
-          <p className="text-gray-600">Description for Total Projects</p>
+          <p className="text-white">Description for Total Projects</p>
         </div>
         <div className="flex-1 text-white bg-[#3DC2EC] p-4 shadow-md rounded-md h-32">
           <h5 className="text-lg font-semibold mb-2">Upcoming Projects</h5>
-          <p className="text-gray-600">Description for Upcoming Projects</p>
+          <p className="text-white">Description for Upcoming Projects</p>
         </div>
         <div className="flex-1 text-white bg-[#FFC163] p-4 shadow-md rounded-md h-32">
           <h5 className="text-lg font-semibold mb-2">In Progress Projects</h5>
-          <p className="text-gray-600">Description for In Progress Projects</p>
+          <p className="text-white">Description for In Progress Projects</p>
         </div>
       </div>
 

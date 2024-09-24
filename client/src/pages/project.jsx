@@ -134,7 +134,7 @@ const [projectToDelete, setProjectToDelete] = useState(null);  // Store the proj
         {isAdmin && (
           <button 
             onClick={handleAddProject} 
-            className="bg-blue text-white px-5 py-2 rounded-md shadow-lg hover:bg-blue-600 transition duration-200">
+            className="bg-blue-600 text-white px-5 py-2 rounded-md shadow-lg hover:bg-blue-600 transition duration-200">
             Add New Project
           </button>
         )}
@@ -271,7 +271,7 @@ const [projectToDelete, setProjectToDelete] = useState(null);  // Store the proj
             <div className="flex justify-between gap-4">
               <button
                 onClick={cancelDelete}
-                className="px-4 py-2 bg-gray-light text-black rounded-md hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-200 text-black rounded-md hover:bg-gray-400"
               >
                 Cancel
               </button>

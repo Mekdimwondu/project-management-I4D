@@ -144,7 +144,7 @@ function AddProject() {
       <div className="flex justify-end mt-4">
         <button
           onClick={handleNext}
-          className="bg-blue text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
         >
           Next
         </button>

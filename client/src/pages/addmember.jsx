@@ -35,7 +35,9 @@ function AddMember() {
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
-
+const handleback=()=>{
+  navigate('/users')
+}
   const handleAddMember = async () => {
     const userData = {
       firstName,
@@ -60,8 +62,9 @@ function AddMember() {
       console.error('Error adding member:', error);
     }
   };
+
   return (
-    <section className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
+    <section className="p-6 bg-gray-200 min-h-screen flex items-center justify-center">
       <div className="bg-white px-20 py-20 rounded-lg shadow-md w-full max-w-6xl">
         <h2 className="text-2xl font-semibold text-center mb-6">Add Member</h2>
         <div className="space-y-4 flex flex-wrap -mx-2">
@@ -194,14 +197,15 @@ function AddMember() {
         <div className="mt-6 flex justify-between space-x-4">
           <button
             type="button"
-            className="w-1/2 bg-gray-light text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            onClick={handleback}
+            className="w-1/2 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >
             Cancel
           </button>
           <button
             type="submit"
             onClick={handleAddMember}
-            className="w-1/2 bg-blue2 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Add Member
           </button>

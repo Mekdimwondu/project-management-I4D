@@ -16,7 +16,7 @@ const isAdmin = user && user.role === 'Admin';
 
   return (
     <section className="flex h-screen overflow-hidden">
-    <aside className="w-1/5 bg-blue p-4 overflow-y-auto">
+    <aside className="w-1/5 bg-blue-600 p-4 overflow-y-auto">
       <Link to="/" className="text-white font-extrabold text-2xl">
         <h1>IMPACT<br />FOR <br />DEVELOPMENT</h1>
       </Link>

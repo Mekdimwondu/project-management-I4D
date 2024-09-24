@@ -8,13 +8,14 @@ export default {
     
     extend: {
      colors: {
-      'blue': '#2033BC',
-      'blue2': '#1170B5',
-      'background': '#D9D9D9',
-      'green': '#13ce66',
-      'gray-dark': '#273444',
-      'gray': '#8492a6',
-      'gray-light': '#d3dce6',
+      
+      // 'blue': '#2033BC',
+      // 'blue2': '#1170B5',
+       'background': '#D9D9D9',
+      // 'green': '#13ce66',
+      // 'gray-dark': '#273444',
+      // 'gray': '#8492a6',
+      // 'gray-light': '#d3dce6',
     },
     },
   },

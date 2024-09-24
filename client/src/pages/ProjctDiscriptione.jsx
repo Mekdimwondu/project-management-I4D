@@ -247,8 +247,8 @@ function ProjectDescription() {
                       task.status === 'Pending'
                         ? 'bg-yellow-500'
                         : task.status === 'In Progress'
-                        ? 'bg-blue' 
-                        : 'bg-green' 
+                        ? 'bg-blue-600' 
+                        : 'bg-green-500' 
                     }`}
                   >
                     {task.status}
@@ -265,27 +265,28 @@ function ProjectDescription() {
                       Edit
                     </button>
                     {dropdownVisible === index && (
-                      <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg">
-                        <button
-                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                          onClick={() => handleStatusChange(index, 'Pending')}
-                        >
-                          Pending
-                        </button>
-                        <button
-                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                          onClick={() => handleStatusChange(index, 'In Progress')}
-                        >
-                          In Progress
-                        </button>
-                        <button
-                          className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                          onClick={() => handleStatusChange(index, 'Completed')}
-                        >
-                          Completed
-                        </button>
-                      </div>
-                    )}
+  <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg">
+    <button
+      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+      onClick={() => handleStatusChange(index, 'Pending')}
+    >
+      Pending
+    </button>
+    <button
+      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+      onClick={() => handleStatusChange(index, 'In Progress')}
+    >
+      In Progress
+    </button>
+    <button
+      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+      onClick={() => handleStatusChange(index, 'Completed')}
+    >
+      Completed
+    </button>
+  </div>
+)}
+
                   </div>
                 </div>
                 {expandedTaskIndex === index && (

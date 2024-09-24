@@ -90,7 +90,7 @@ function Users() {
                 />
                 <button
                     onClick={handleAddUserClick}
-                    className="bg-blue text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
                 >
                     Add User
                 </button>
