@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchUserById, updateMember } from '../api/userApi'; // Your API functions
 
-function EditUser() {
+function UserProfileEdit() {
   const { memberId } = useParams();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
@@ -65,35 +65,8 @@ function EditUser() {
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
               />
             </div>
-            <div>
-              <label className="block text-gray-700">Job Type:</label>
-              <select
-                name="jobType"
-                value={user.jobType}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">Select Job Type</option>
-                <option value="full-time">Full Time</option>
-                <option value="part-time">Part Time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700">Work Type:</label>
-              <select
-                name="workType"
-                value={user.workType}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">Select Work Type</option>
-                <option value="remote">Remote</option>
-                <option value="onsite">Onsite</option>
-                <option value="hybrid">Hybrid</option>
-              </select>
-            </div>
+            
+          
             <div>
               <label className="block text-gray-700">Phone Number:</label>
               <input
@@ -103,20 +76,6 @@ function EditUser() {
                 onChange={handleInputChange}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
               />
-            </div>
-            <div>
-              <label className="block text-gray-700">Experience Level:</label>
-              <select
-                name="experienceLevel"
-                value={user.experienceLevel}
-                onChange={handleInputChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">Select Experience Level</option>
-                <option value="junior">Junior</option>
-                <option value="mid">Mid</option>
-                <option value="senior">Senior</option>
-              </select>
             </div>
           </div>
           <button
@@ -139,4 +98,4 @@ function EditUser() {
   );
 }
 
-export default EditUser;
+export default UserProfileEdit;

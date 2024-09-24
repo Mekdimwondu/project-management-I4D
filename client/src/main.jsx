@@ -26,6 +26,8 @@ import ProjctDiscriptione from './pages/ProjctDiscriptione';
 import EditUser from './pages/EditUser';
 import Chat from './pages/chat';
 import PasswordChange from './components/passwordChange';
+import UserProfileEdit from './pages/userProfileEdit';
+import CurrentUserProfile from './pages/currentUserProfile';
 
 const router = createBrowserRouter([
   {
@@ -106,11 +108,15 @@ const router = createBrowserRouter([
           },
           {
             path: '/profile/:memberId',
-            element: <UserProfile />,
+            element: <CurrentUserProfile />,
           },
           {
             path:'/edit-user/:memberId',
             element:<EditUser/>,
+          }, 
+          {
+            path:'/edit-my/:memberId',
+            element:<UserProfileEdit/>,
           }, 
         ],
       }

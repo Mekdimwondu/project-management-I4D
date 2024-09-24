@@ -39,12 +39,6 @@ const updateUser = async (req, res) => {
         if (!user) return res.status(404).send('User Not found');
 
         updates.forEach(update => user[update] = req.body[update]);
-
-        if (req.body.password) {
-            user.password = await bcrypt.hash(req.body.password, 10);
-            user.mustChangePassword = false; // Reset flag when password is updated
-        }
-
         await user.save();
         res.status(200).send(user);
     } catch (error) {

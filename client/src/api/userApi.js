@@ -56,7 +56,7 @@ const getMembers = async () => {
 };
 
 // Delete user
- const deleteMember = async (memberId) => {
+ const removeUserById = async (memberId) => {
   try {
     const response = await apiService.delete(`/users/users/${memberId}`); // Fixed URL
     return response.data;
@@ -76,4 +76,4 @@ const fetchUserById= async(memberId)=>{
 }
 
 // Export the functions
-export { addUser, getMembers, updateMember, deleteMember,fetchUserById };
+export { addUser, getMembers, updateMember, removeUserById,fetchUserById };

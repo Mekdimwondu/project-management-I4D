@@ -1,42 +1,40 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import {jwtDecode} from 'jwt-decode';
-import { displayUsers } from '../api/userApi' // Import the centralized API instance
+import { jwtDecode } from 'jwt-decode';
+import { displayUsers, removeUserById } from '../api/userApi'; // Import the API functions
 
 function Users() {
     const [users, setUsers] = useState([]);
     const [userRole, setUserRole] = useState(null);
+    const [showModal, setShowModal] = useState(false); // Modal visibility state
+    const [selectedUser, setSelectedUser] = useState(null); // Selected user to delete
     const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('User');
-        console.log(token)
         if (token) {
             try {
                 const decodedToken = jwtDecode(token);
-                setUserRole(decodedToken.role); // Set user role
-                console.log(decodedToken.role)
+                setUserRole(decodedToken.role);
             } catch (error) {
                 console.error('Failed to decode token:', error);
-                navigate('/login'); // If decoding fails, redirect to login
+                navigate('/login');
             }
         } else {
-            navigate('/login'); // Redirect if no token
+            navigate('/login');
         }
     }, [navigate]);
 
     useEffect(() => {
         if (userRole === 'Admin') {
-            console.log('Fetching users as Admin...');
-            fetchUsers(); // Use centralized API call
+            fetchUsers();
         }
-        console.log('User role:', userRole);
     }, [userRole]);
 
     const fetchUsers = async () => {
         try {
-            const users = await displayUsers(); // Use the centralized API function
-            setUsers(users);
+            const usersData = await displayUsers();
+            setUsers(usersData);
         } catch (error) {
             console.error('Error fetching user data:', error);
         }
@@ -47,11 +45,33 @@ function Users() {
     };
 
     const handleRowClick = (memberId) => {
-        navigate(`/users/${memberId}`);
+        navigate(`/users/${memberId}`); // Navigate to user details
+    };
+
+    const handleRemoveClick = (event, user) => {
+        event.stopPropagation(); // Prevent row click navigation
+        setSelectedUser(user);    // Set the user to be deleted
+        setShowModal(true);       // Show confirmation modal
+    };
+
+    const handleDeleteUser = async () => {
+        try {
+            await removeUserById(selectedUser._id); // Call API to delete the user
+            setUsers(users.filter((user) => user._id !== selectedUser._id)); // Update user list
+            setShowModal(false); // Close modal
+            setSelectedUser(null); // Clear selected user
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false); // Close the modal without deleting
+        setSelectedUser(null); // Clear selected user
     };
 
     if (!userRole) {
-        return <div>Loading...</div>; // Render a loading state while determining role
+        return <div>Loading...</div>;
     }
 
     if (userRole !== 'Admin') {
@@ -60,10 +80,8 @@ function Users() {
 
     return (
         <section className="p-4 space-y-4">
-            {/* Header Section */}
             <div className="text-2xl font-bold mb-4">Users</div>
 
-            {/* Input and Button Section */}
             <div className="flex space-x-4 mb-4 justify-between">
                 <input
                     type="text"
@@ -78,7 +96,6 @@ function Users() {
                 </button>
             </div>
 
-            {/* User List Table */}
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white rounded-md shadow-md">
                     <thead>
@@ -87,7 +104,7 @@ function Users() {
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Email</th>
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Phone</th>
                             <th className="px-4 py-2 text-left text-gray-600 font-medium">Role</th>
-                            {/* <th className="px-4 py-2 text-left text-gray-600 font-medium">Remove</th> */}
+                            <th className="px-4 py-2 text-left text-gray-600 font-medium">Remove</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -98,15 +115,43 @@ function Users() {
                                 <td className="border-t px-4 py-2">{user.phoneNumber}</td>
                                 <td className="border-t px-4 py-2">{user.role}</td>
                                 <td className="border-t px-4 py-2">
-                                    {/* <button className="bg-red-500 text-white px-2 py-1 rounded-md shadow-md hover:bg-red-600 transition duration-200">
+                                    <button
+                                        onClick={(event) => handleRemoveClick(event, user)} // Stop propagation
+                                        className="bg-red-500 text-white px-2 py-1 rounded-md shadow-md hover:bg-red-600 transition duration-200"
+                                    >
                                         Remove
-                                    </button> */}
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* Confirmation Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center">
+                    <div className="bg-white rounded-lg shadow-lg p-6">
+                        <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+                        <p>Are you sure you want to delete {selectedUser.firstName} {selectedUser.lastName}?</p>
+                        <div className="mt-6 flex justify-end space-x-4">
+                            <button
+                                onClick={handleDeleteUser}
+                                className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600"
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                onClick={closeModal}
+                                className="bg-gray-300 text-black px-4 py-2 rounded-md shadow-md hover:bg-gray-400"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Outlet />
         </section>
     );
