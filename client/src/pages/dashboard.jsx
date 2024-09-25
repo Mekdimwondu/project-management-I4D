@@ -9,7 +9,7 @@ function Dashboard() {
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
- 
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
@@ -54,6 +54,14 @@ function Dashboard() {
   const handleDropdownToggle = () => {
     setDropdownVisible(prevState => !prevState);
   };
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+};
+
+// Filter users based on search query
+const filteredUsers = assignedProjects.filter(assignedProjects =>
+    `${assignedProjects.projectName}`.toLowerCase().includes(searchQuery.toLowerCase())
+);
 
 
   return (
@@ -63,6 +71,8 @@ function Dashboard() {
         <div className="flex items-center space-x-4">
           <input
             type="search"
+            value={searchQuery}
+            onChange={handleSearchChange}
             placeholder="Search..."
             className="w-full max-w-52 p-1 border border-slate-700 rounded-full focus:outline-none focus:ring-1 focus:ring-slate-800"
           />
@@ -125,7 +135,7 @@ function Dashboard() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {assignedProjects.length > 0 ? (
-                assignedProjects.map((project) => (
+                filteredUsers.map((project) => (
                   <tr key={project._id}>
                     <td className="px-6 py-4 whitespace-nowrap">{project.projectName}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{new Date(project.deadline).toLocaleDateString()}</td>

@@ -8,6 +8,7 @@ function Users() {
     const [userRole, setUserRole] = useState(null);
     const [showModal, setShowModal] = useState(false); // Modal visibility state
     const [selectedUser, setSelectedUser] = useState(null); // Selected user to delete
+    const [searchQuery, setSearchQuery] = useState(''); // Search query state
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,6 +71,15 @@ function Users() {
         setSelectedUser(null); // Clear selected user
     };
 
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    // Filter users based on search query
+    const filteredUsers = users.filter(user =>
+        `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (!userRole) {
         return <div>Loading...</div>;
     }
@@ -85,7 +95,9 @@ function Users() {
             <div className="flex space-x-4 mb-4 justify-between">
                 <input
                     type="text"
-                    placeholder="Enter user details"
+                    placeholder="Search Name"
+                    value={searchQuery}
+                    onChange={handleSearchChange} // Update search query state on input change
                     className="w-1/5 px-4 py-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
@@ -108,7 +120,7 @@ function Users() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                             <tr key={user._id} className="cursor-pointer" onClick={() => handleRowClick(user._id)}>
                                 <td className="border-t px-4 py-2">{`${user.firstName} ${user.lastName}`}</td>
                                 <td className="border-t px-4 py-2">{user.email}</td>
