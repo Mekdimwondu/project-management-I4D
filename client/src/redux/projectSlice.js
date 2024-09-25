@@ -5,6 +5,7 @@ const projectSlice = createSlice({
   name: 'project',
   initialState: {
     projectName: '',
+    clientName:'',
     deadline: '',
     description: '',
     priorityLevel: '',
@@ -17,6 +18,7 @@ const projectSlice = createSlice({
     clearProjectDetails: () => {
       return {
         projectName: '',
+        clientName:'',
         deadline: '',
         description: '',
         priorityLevel: '',

@@ -3,10 +3,10 @@ const { sendUserAssignToProject } = require('../utils/emailService');
 const { getUserEmails } = require('../utils/userUtils');
 const createProject = async (req, res) => {
   try {
-    const { projectName, teamMembers, deadline, priorityLevel, description, tasks } = req.body;
+    const { projectName,clientName, teamMembers, deadline, priorityLevel, description, tasks } = req.body;
 
     // Validate required fields
-    if (!projectName || !deadline) {
+    if (!projectName || !deadline||!clientName) {
       return res.status(400).json({ message: 'Project name and deadline are required' });
     }
 
@@ -17,6 +17,7 @@ const createProject = async (req, res) => {
     // Create and save the new project
     const project = new Project({
       projectName,
+      clientName,
       teamMembers,
       deadline,
       priorityLevel,

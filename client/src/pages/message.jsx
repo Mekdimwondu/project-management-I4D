@@ -102,7 +102,7 @@ function Message({ groupId, groupName }) {
           Authorization: `Bearer ${localStorage.getItem('User')}`, // Include JWT token in header
         },
       })
-      .then((response) => {
+      .then(() => {
         // Do not add the message locally here, wait for the socket event
         setNewMessage(''); // Clear the input field after sending
 

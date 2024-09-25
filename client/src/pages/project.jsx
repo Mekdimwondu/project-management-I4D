@@ -184,6 +184,7 @@ const [projectToDelete, setProjectToDelete] = useState(null);  // Store the proj
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4">
+                 <p className="text-sm text-gray-600">Client Name: {project.clientName}</p>
                   <p className="text-sm text-gray-600">Tasks: {project.tasks.length}</p>
                   <p className="text-sm text-gray-700">Priority: {project.priorityLevel}</p>
                   <p className="text-sm text-gray-700">Deadline: {new Date(project.deadline).toLocaleDateString()}</p>

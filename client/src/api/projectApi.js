@@ -49,6 +49,7 @@ export const updateProjectTeamMembers = async (projectId, updatedMembers) => {
 export const sendProjectData = async (project) => {
   const projectData = {
     projectName: project.projectName,
+    clientName:project.clientName,
     deadline: project.deadline,
     description: project.description,
     priorityLevel: project.priorityLevel,

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 function AddProject() {
   const [projectName, setProjectName] = useState('');
+  const [clientName, setClientName]=useState('');
   const [deadline, setDeadline] = useState('');
   const [description, setDescription] = useState('');
   const [priorityLevel, setPriority] = useState('low');
@@ -49,6 +50,7 @@ function AddProject() {
     dispatch(
       setProjectDetails({
         projectName,
+        clientName,
         deadline,
         description,
         priorityLevel,
@@ -73,6 +75,14 @@ function AddProject() {
               placeholder="Enter project name"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+              <label className="block text-lg font-medium text-gray-700">Client Name</label>
+            <input
+              type="text"
+              placeholder="Enter client name"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
