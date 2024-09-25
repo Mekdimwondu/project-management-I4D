@@ -28,12 +28,28 @@ import Chat from './pages/chat';
 import PasswordChange from './components/passwordChange';
 import UserProfileEdit from './pages/userProfileEdit';
 import CurrentUserProfile from './pages/currentUserProfile';
+import ForgotPassword from './components/forgotPassword';
+import VerifyCode from './components/verifyCode';
+import ResetPassword from './components/resetpassword';
 
 const router = createBrowserRouter([
   {
     path: '/reset-password',
     element: <PasswordChange />, // Ensure you have this component
   },
+  {
+    path: '/resetPassword',
+    element: <ResetPassword />, // Ensure you have this component
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />, // Ensure you have this component
+  },
+  {
+    path: '/verify-code',
+    element: <VerifyCode />, // Ensure you have this component
+  },
+
   {
     path: '/login',
     element: <Login />,

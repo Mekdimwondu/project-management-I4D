@@ -56,5 +56,19 @@ const sendUserAssignToProject = async (userEmail) => {
     console.error('Error sending email:', error);
   }
 };
+const sendResetCodeEmail = async (userEmail, resetCode) => {
+  const mailOptions = {
+    from: {
+      name: 'I4D',
+      address: process.env.EMAIL_USERNAME,
+    }, 
+    to: userEmail,
+    subject: 'Reset Password Send from I4D',
+    text: `You verification code is ${resetCode}. copy this code to verify your I4D account`,
+    html: `<p>You verification code is ${resetCode}. copy this code to verify your I4D account</p>`,
+  };
 
-module.exports = { sendPasswordChangeNotification, sendUserAssignToProject };
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = { sendPasswordChangeNotification, sendUserAssignToProject ,sendResetCodeEmail};

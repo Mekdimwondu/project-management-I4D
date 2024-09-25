@@ -3,6 +3,7 @@
 const express = require('express');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { forgotPassword, verifyCode, resetPassword } = require('../controllers/authController');
 const router = express.Router();
 
 // Login route
@@ -36,5 +37,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
+router.post('/forgot-password', forgotPassword);
+router.post('/verify-code', verifyCode);
+router.post('/reset-password',resetPassword)
 module.exports = router;

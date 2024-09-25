@@ -17,6 +17,8 @@ const UserSchema = new mongoose.Schema({
   mustChangePassword: { type: Boolean, default: true }, 
   resetPasswordToken: { type: String }, // Add reset token field
   resetPasswordExpires: { type: Date }, // Add token expiration field
+  resetCode: { type: String },  // Store the 4-digit reset code
+  resetCodeExpires: { type: Date },
 });
 
 UserSchema.pre('save', async function(next) {
