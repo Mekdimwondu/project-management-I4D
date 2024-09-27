@@ -119,20 +119,22 @@ function EditUser() {
               </select>
             </div>
           </div>
+          <div className='flex p-2 gap-2'>
           <button
             type="button"
             onClick={handleBack}
-            className="w-full bg-gray text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition duration-300"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="w-full bg-blue2 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
           >
             Save
           </button>
+          </div>
         </form>
       </div>
     </section>

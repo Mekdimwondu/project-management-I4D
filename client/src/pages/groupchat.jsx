@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import apiService from '../api/apiService';
 import { jwtDecode } from 'jwt-decode';
 
-function GroupList({ onGroupSelect, onUserSelect, setIsCreatingGroup }) {
+function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [isCreatingGroup, setIsCreatingGroupState] = useState(false);
@@ -35,7 +35,7 @@ function GroupList({ onGroupSelect, onUserSelect, setIsCreatingGroup }) {
 
     const fetchUsers = async () => {
       try {
-        const response = await apiService.get('/users/users');
+        const response = await apiService.get('/users');
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -100,25 +100,6 @@ function GroupList({ onGroupSelect, onUserSelect, setIsCreatingGroup }) {
             ))
           ) : (
             <li>No groups available</li>
-          )}
-        </ul>
-      </div>
-
-      <div className="text-xl font-semibold mb-2">Users</div>
-      <div className="flex-1 overflow-y-auto">
-        <ul className="space-y-2">
-          {users.length > 0 ? (
-            users.map((user) => (
-              <li
-                key={user._id}
-                className="text-lg cursor-pointer hover:underline"
-                onClick={() => onUserSelect(user._id, `${user.firstName} ${user.lastName}`)}
-              >
-                {user.firstName} {user.lastName}
-              </li>
-            ))
-          ) : (
-            <li>No users available</li>
           )}
         </ul>
       </div>

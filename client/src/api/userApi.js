@@ -3,7 +3,7 @@ import apiService from './apiService';
 
 export const displayUsers = async () => {
   try {
-    const response = await apiService.get('/users/users');
+    const response = await apiService.get('/users');
     return response.data;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -14,7 +14,7 @@ export const displayUsers = async () => {
 const addUser = async (memberData) => {
   try {
     // Step 1: Create the user
-    const response = await apiService.post('/users/users', memberData);
+    const response = await apiService.post('/users', memberData);
 
     // Extract the user's email from the response
     const email = response.data.email; 
@@ -32,8 +32,19 @@ const addUser = async (memberData) => {
     throw error;
   }
 };
-
-
+// Function to check if the email already exists
+const checkEmailExists = async (email) => {
+  try {
+    const encodedEmail = encodeURIComponent(email.trim());
+    console.log('Checking email:', encodedEmail); // Log the encoded email
+    const response = await apiService.get(`/users/check-email?email=${encodedEmail}`);
+    console.log('Server response:', response.data); // Log the server response
+    return response.data.exists;
+  } catch (error) {
+    console.error('Error checking email:', error.response?.data || error.message);
+    throw error;
+  }
+};
 // Function to get all users
 const getMembers = async () => {
   try {
@@ -76,4 +87,4 @@ const fetchUserById= async(memberId)=>{
 }
 
 // Export the functions
-export { addUser, getMembers, updateMember, removeUserById,fetchUserById };
+export { addUser,checkEmailExists, getMembers, updateMember, removeUserById,fetchUserById };

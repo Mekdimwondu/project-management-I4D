@@ -49,7 +49,7 @@ function ProjectDescription() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('User');
-        const response = await fetch('http://localhost:5000/api/users/users', {
+        const response = await fetch('http://localhost:5000/api/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
