@@ -38,7 +38,7 @@ app.use((err, req, res, next) => {
 
 // Middleware to parse JSON requests
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, "./client/build")));
 // Connect to the database
 mongodb();
 
