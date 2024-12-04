@@ -1,5 +1,6 @@
 require('dotenv').config({path:"../../.env"})
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const User = require('../../models/user');
 
 console.log('MONGO_URI:', process.env.MONGO_URI);
@@ -32,11 +33,13 @@ const createAdmin = async () => {
       return;
     }
 
+    const hashedPassword = await bcrypt.hash('adminpassword', 10);
+
     const admin = new User({
       firstName: 'Admin',
       lastName: 'User',
-      email: 'admin@example.com',
-      password: 'adminpassword',
+      email: 'saremtadele4@gmail.com',
+      password: hashedPassword,
       role: 'Admin',
     });
 

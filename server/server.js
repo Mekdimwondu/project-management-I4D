@@ -1,36 +1,33 @@
-const dotenv = require("dotenv");
-const express = require("express");
-const cors = require("cors");
-const mongodb = require("./config/db");
-const http = require("http");
-const path = require("path");
-const { Server } = require("socket.io");
-const authRoutes = require("./routes/auth");
-const dashboardRoutes = require("./routes/dashboard");
-const userRouter = require("./routes/userRoutes");
-const projectRoutes = require("./routes/projectRoutes");
-const memoRoutes = require("./routes/memoRoutes");
-const messageRoutes = require("./routes/messageRoutes"); // Added message routes
-const groupRoutes = require("./routes/groupRoutes");
+const dotenv = require('dotenv');
+const express = require('express');
+const cors = require('cors');
+const mongodb = require('./config/db');
+const http = require('http');
+const { Server } = require('socket.io');
+const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboard');
+const userRouter = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const memoRoutes = require('./routes/memoRoutes');
+const messageRoutes = require('./routes/messageRoutes'); // Added message routes
+const groupRoutes = require('./routes/groupRoutes');
 
 dotenv.config();
 
 const app = express();
-// Connect to the database
-mongodb();
+
 // Middleware to enable CORS
-app.use(express.json());
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL, // Allow requests from your frontend
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed methods
-    credentials: true, // Allow cookies to be sent
-  })
-);
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from your frontend
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed methods
+  credentials: true, // Allow cookies to be sent
+}));
 
 // Middleware to parse JSON requests
+app.use(express.json());
 
-
+// Connect to the database
+mongodb();
 
 // Routes
 app.use("/api/auth", authRoutes);
