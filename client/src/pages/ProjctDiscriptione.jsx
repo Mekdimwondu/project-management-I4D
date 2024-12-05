@@ -142,7 +142,9 @@ function ProjectDescription() {
       await updateTaskStatus(projectId, tasks[taskIndex]._id, newStatus);
 
       const percentageResponse = await fetch(
-        `http://localhost:5000/api/project/${projectId}/completion`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/project/${projectId}/completion`,
         {
           method: "PUT",
           headers: {
