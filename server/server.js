@@ -1,33 +1,42 @@
-const dotenv = require('dotenv');
-const express = require('express');
-const cors = require('cors');
-const mongodb = require('./config/db');
-const http = require('http');
-const { Server } = require('socket.io');
-const authRoutes = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
-const userRouter = require('./routes/userRoutes');
-const projectRoutes = require('./routes/projectRoutes');
-const memoRoutes = require('./routes/memoRoutes');
-const messageRoutes = require('./routes/messageRoutes'); // Added message routes
-const groupRoutes = require('./routes/groupRoutes');
+// server.js
+// server.js
+
+const dotenv = require("dotenv");
+const express = require("express");
+const cors = require("cors");
+const mongodb = require("./config/db");
+const http = require("http");
+const path = require("path");
+const authRoutes = require("./routes/auth");
+const dashboardRoutes = require("./routes/dashboard");
+const userRouter = require("./routes/userRoutes");
+const projectRoutes = require("./routes/projectRoutes");
+const memoRoutes = require("./routes/memoRoutes");
+const messageRoutes = require("./routes/messageRoutes"); // Added message routes
+const groupRoutes = require("./routes/groupRoutes");
+const initializeSocket = require("./socket"); // Import the initializeSocket function
 
 dotenv.config();
 
 const app = express();
 
 // Middleware to enable CORS
-app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests from your frontend
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed methods
-  credentials: true, // Allow cookies to be sent
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL, // Allow requests from your frontend
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Allowed methods
+    credentials: true, // Allow cookies to be sent
+  })
+);
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
 // Connect to the database
 mongodb();
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../../client/build")));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -38,48 +47,18 @@ app.use("/api", memoRoutes);
 app.use("/api", messageRoutes); // Added message routes
 app.use("/api/", groupRoutes);
 
+// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../client/build/index.html"));
+});
 
 // Create an HTTP server
 const server = http.createServer(app);
 
-// Integrate Socket.IO with the server
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
-});
-
-// Listen for incoming connections
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
-
-  // Handle user joining a project room or individual chat
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
-    console.log(`User ${socket.id} joined room ${roomId}`);
-  });
-
-  // Handle sending a message to a group or individual
-  socket.on("sendMessage", (message) => {
-    const roomId = message.groupId || message.roomId; // Use either groupId or roomId
-    const { content } = message;
-
-    if (roomId) {
-      io.to(roomId).emit("receiveMessage", message);
-      console.log(`Message sent to room ${roomId}:`, content);
-    } else {
-      console.error("roomId is undefined. Message not sent.");
-    }
-  });
-
-  // Handle user disconnect
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-});
+// Initialize Socket.IO
+initializeSocket(server);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
-module.exports = { io }; // Export io if needed elsewhere
+module.exports = server;
