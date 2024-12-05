@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Select from 'react-select';
-import { fetchProjectById, updateProjectTeamMembers, updateTaskStatus } from '../api/projectApi';
-import {jwtDecode} from 'jwt-decode'; // Corrected import
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Select from "react-select";
+import {
+  fetchProjectById,
+  updateProjectTeamMembers,
+  updateTaskStatus,
+} from "../api/projectApi";
+import { jwtDecode } from "jwt-decode"; // Corrected import
 
 function ProjectDescription() {
   const { projectId } = useParams();
@@ -18,15 +22,15 @@ function ProjectDescription() {
 
   // Check if the user is admin
   useEffect(() => {
-    const storedUserToken = localStorage.getItem('User');
+    const storedUserToken = localStorage.getItem("User");
     if (storedUserToken) {
       try {
         const user = jwtDecode(storedUserToken);
-        if (user.role === 'Admin') {
+        if (user.role === "Admin") {
           setIsAdmin(true); // Set isAdmin to true if user is Admin
         }
       } catch (error) {
-        console.error('Failed to decode token:', error);
+        console.error("Failed to decode token:", error);
       }
     }
   }, []); // Run once when the component mounts
@@ -41,22 +45,25 @@ function ProjectDescription() {
         setSelectedMembers(data.teamMembers || []);
         setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch project:', error);
+        console.error("Failed to fetch project:", error);
         setLoading(false);
       }
     };
 
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('User');
-        const response = await fetch('http://localhost:5000/api/users/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const token = localStorage.getItem("User");
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.status === 401) {
-          throw new Error('Unauthorized');
+          throw new Error("Unauthorized");
         }
 
         const data = await response.json();
@@ -66,7 +73,7 @@ function ProjectDescription() {
         }));
         setUsers(users);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -81,7 +88,7 @@ function ProjectDescription() {
         try {
           await updateProjectTeamMembers(projectId, selectedMembers);
         } catch (error) {
-          console.error('Error updating team members:', error);
+          console.error("Error updating team members:", error);
         }
       };
       updateTeamMembers();
@@ -102,13 +109,13 @@ function ProjectDescription() {
     const totalPercentage = tasks.reduce((total, task) => {
       let percentage;
       switch (task.status) {
-        case 'Completed':
+        case "Completed":
           percentage = 100;
           break;
-        case 'In Progress':
+        case "In Progress":
           percentage = 50;
           break;
-        case 'Pending':
+        case "Pending":
           percentage = 0;
           break;
         default:
@@ -134,27 +141,33 @@ function ProjectDescription() {
       setTasks(updatedTasks); // Optimistically update UI
       await updateTaskStatus(projectId, tasks[taskIndex]._id, newStatus);
 
-      const percentageResponse = await fetch(`http://localhost:5000/api/project/${projectId}/completion`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('User')}`,
-        },
-        body: JSON.stringify({ completionPercentage: averagePercentage }),
-      });
+      const percentageResponse = await fetch(
+        `http://localhost:5000/api/project/${projectId}/completion`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("User")}`,
+          },
+          body: JSON.stringify({ completionPercentage: averagePercentage }),
+        }
+      );
 
       if (!percentageResponse.ok) {
         throw new Error(`Error: ${percentageResponse.statusText}`);
       }
 
-      console.log('Task status and project percentage updated successfully');
+      console.log("Task status and project percentage updated successfully");
     } catch (error) {
-      console.error('Error updating task status and project percentage:', error);
+      console.error(
+        "Error updating task status and project percentage:",
+        error
+      );
       try {
         const data = await fetchProjectById(projectId);
         setTasks(data.tasks || []);
       } catch (fetchError) {
-        console.error('Error fetching updated project data:', fetchError);
+        console.error("Error fetching updated project data:", fetchError);
       }
     }
   };
@@ -174,9 +187,11 @@ function ProjectDescription() {
           <div className="bg-white p-6 shadow-md rounded-md mb-4">
             <h1 className="text-3xl font-bold mb-4">{project.projectName}</h1>
             <div className="text-gray-700 mb-4">
-              {project.description.split(/(?<=[.?!])\s+|(?=\d+\.\s)|(?<=\s["“].*?["”])/g).map((part, index) => (
-                <p key={index}>{part}</p>
-              ))}
+              {project.description
+                .split(/(?<=[.?!])\s+|(?=\d+\.\s)|(?<=\s["“].*?["”])/g)
+                .map((part, index) => (
+                  <p key={index}>{part}</p>
+                ))}
             </div>
           </div>
 
@@ -189,7 +204,7 @@ function ProjectDescription() {
                   onClick={() => setIsEditingTeam(!isEditingTeam)}
                   className="text-blue-500 hover:underline"
                 >
-                  {isEditingTeam ? 'Cancel' : 'Edit'}
+                  {isEditingTeam ? "Cancel" : "Edit"}
                 </button>
               </div>
               {isEditingTeam ? (
@@ -203,8 +218,8 @@ function ProjectDescription() {
                   styles={{
                     menu: (provided) => ({
                       ...provided,
-                      maxHeight: '150px',
-                      overflowY: 'auto',
+                      maxHeight: "150px",
+                      overflowY: "auto",
                     }),
                   }}
                 />
@@ -235,8 +250,8 @@ function ProjectDescription() {
                   <div className="flex items-center">
                     <input
                       type="radio"
-                      checked={task.status === 'Completed'}
-                      onChange={() => handleStatusChange(index, 'Completed')}
+                      checked={task.status === "Completed"}
+                      onChange={() => handleStatusChange(index, "Completed")}
                       className="mr-4"
                     />
                     <span>{task.taskName}</span>
@@ -244,11 +259,11 @@ function ProjectDescription() {
 
                   <span
                     className={`px-2 py-1 rounded-md text-white ${
-                      task.status === 'Pending'
-                        ? 'bg-yellow-500'
-                        : task.status === 'In Progress'
-                        ? 'bg-blue-600' 
-                        : 'bg-green-500' 
+                      task.status === "Pending"
+                        ? "bg-yellow-500"
+                        : task.status === "In Progress"
+                        ? "bg-blue-600"
+                        : "bg-green-500"
                     }`}
                   >
                     {task.status}
@@ -265,32 +280,36 @@ function ProjectDescription() {
                       Edit
                     </button>
                     {dropdownVisible === index && (
-  <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg">
-    <button
-      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
-      onClick={() => handleStatusChange(index, 'Pending')}
-    >
-      Pending
-    </button>
-    <button
-      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
-      onClick={() => handleStatusChange(index, 'In Progress')}
-    >
-      In Progress
-    </button>
-    <button
-      className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
-      onClick={() => handleStatusChange(index, 'Completed')}
-    >
-      Completed
-    </button>
-  </div>
-)}
-
+                      <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg">
+                        <button
+                          className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                          onClick={() => handleStatusChange(index, "Pending")}
+                        >
+                          Pending
+                        </button>
+                        <button
+                          className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                          onClick={() =>
+                            handleStatusChange(index, "In Progress")
+                          }
+                        >
+                          In Progress
+                        </button>
+                        <button
+                          className="w-full block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                          onClick={() => handleStatusChange(index, "Completed")}
+                        >
+                          Completed
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {expandedTaskIndex === index && (
-                  <div className="mt-4 text-gray-600 overflow-auto whitespace-pre-wrap break-words" style={{ maxHeight: '200px' }}>
+                  <div
+                    className="mt-4 text-gray-600 overflow-auto whitespace-pre-wrap break-words"
+                    style={{ maxHeight: "200px" }}
+                  >
                     <p>{task.taskDescription}</p>
                   </div>
                 )}

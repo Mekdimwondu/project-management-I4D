@@ -1,19 +1,19 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
-import {jwtDecode} from 'jwt-decode'; // Correct jwt-decode import
-import apiService from '../api/apiService'; // Custom apiService
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import { jwtDecode } from "jwt-decode"; // Correct jwt-decode import
+import apiService from "../api/apiService"; // Custom apiService
 
 function Message({ groupId, groupName }) {
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [userId, setUserId] = useState(null); // Store the current user's ID
-  const [userName, setUserName] = useState({ firstName: '', lastName: '' }); // Store the user's name
+  const [userName, setUserName] = useState({ firstName: "", lastName: "" }); // Store the user's name
   const [socket, setSocket] = useState(null); // Store the socket connection
 
   // Decode JWT token and set user ID and name
   useEffect(() => {
-    const token = localStorage.getItem('User');
+    const token = localStorage.getItem("User");
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -23,7 +23,7 @@ function Message({ groupId, groupName }) {
           lastName: decodedToken.lastName,
         }); // Store the current user's name
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
       }
     }
   }, []);
@@ -33,11 +33,11 @@ function Message({ groupId, groupName }) {
     if (!groupId) return; // Ensure groupId is present
 
     // Initialize socket connection once
-    const newSocket = io('http://localhost:5000'); // Replace with your socket server URL
+    const newSocket = io(`${import.meta.env.VITE_BACKEND_URL}`); // Replace with your socket server URL
     setSocket(newSocket);
 
     // Join the room
-    newSocket.emit('joinRoom', groupId);
+    newSocket.emit("joinRoom", groupId);
 
     // Fetch messages from the server
     const fetchMessages = async () => {
@@ -46,10 +46,10 @@ function Message({ groupId, groupName }) {
         if (Array.isArray(response.data)) {
           setMessages(response.data);
         } else {
-          console.error('Unexpected response format:', response.data);
+          console.error("Unexpected response format:", response.data);
         }
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error("Error fetching messages:", error);
       }
     };
 
@@ -62,7 +62,7 @@ function Message({ groupId, groupName }) {
       }
     };
 
-    newSocket.on('receiveMessage', handleNewMessage);
+    newSocket.on("receiveMessage", handleNewMessage);
 
     return () => {
       newSocket.disconnect(); // Clean up socket connection on component unmount
@@ -73,13 +73,13 @@ function Message({ groupId, groupName }) {
   const sendMessage = () => {
     if (!newMessage || !socket) return; // Prevent sending empty messages
 
-    const token = localStorage.getItem('User');
+    const token = localStorage.getItem("User");
     let decodedToken;
     if (token) {
       try {
         decodedToken = jwtDecode(token); // Decode the token to extract user info
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
         return;
       }
     }
@@ -99,15 +99,15 @@ function Message({ groupId, groupName }) {
     apiService
       .post(`/messages/${groupId}`, messageData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('User')}`, // Include JWT token in header
+          Authorization: `Bearer ${localStorage.getItem("User")}`, // Include JWT token in header
         },
       })
       .then(() => {
         // Do not add the message locally here, wait for the socket event
-        setNewMessage(''); // Clear the input field after sending
+        setNewMessage(""); // Clear the input field after sending
 
         // Emit the message through the socket to notify other clients
-        socket.emit('sendMessage', {
+        socket.emit("sendMessage", {
           ...messageData,
           sender: {
             _id: userId,
@@ -117,7 +117,7 @@ function Message({ groupId, groupName }) {
         });
       })
       .catch((error) => {
-        console.error('Error sending message:', error);
+        console.error("Error sending message:", error);
       });
   };
 
@@ -125,7 +125,9 @@ function Message({ groupId, groupName }) {
     <div className="flex flex-col h-full">
       {/* Group Name */}
       <div className="flex justify-between items-center p-4 bg-slate-700 shadow-md rounded-md">
-        <div className="text-2xl text-white font-semibold">{groupName || 'Select a group'}</div>
+        <div className="text-2xl text-white font-semibold">
+          {groupName || "Select a group"}
+        </div>
       </div>
 
       {/* Messages List */}
@@ -134,22 +136,30 @@ function Message({ groupId, groupName }) {
           messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.sender?._id === userId ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.sender?._id === userId ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-xs p-3 rounded-lg shadow-md  ${
-                  message.sender?._id === userId ? 'bg-sky-700 text-white font-thin' : 'bg-gray-600 text-white font-thin'
+                  message.sender?._id === userId
+                    ? "bg-sky-700 text-white font-thin"
+                    : "bg-gray-600 text-white font-thin"
                 }`}
               >
                 <p className="font-thin">
-                  {message.sender?._id === userId ? 'You' : `${message.sender?.firstName} ${message.sender?.lastName}`}
+                  {message.sender?._id === userId
+                    ? "You"
+                    : `${message.sender?.firstName} ${message.sender?.lastName}`}
                 </p>
                 <p>{message.content}</p>
               </div>
             </div>
           ))
         ) : (
-          <div className="bg-gray-500 p-3 rounded-md shadow">No messages yet.</div>
+          <div className="bg-gray-500 p-3 rounded-md shadow">
+            No messages yet.
+          </div>
         )}
       </div>
 

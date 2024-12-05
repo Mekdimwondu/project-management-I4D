@@ -1,34 +1,37 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const togglePasswordVisibility = () => {
-    setShowPassword(prevState => !prevState);
+    setShowPassword((prevState) => !prevState);
   };
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,
+        { email, password }
+      );
       const token = response.data.token;
-      localStorage.setItem('User', token); // Store the JWT token
-      navigate('/dashboard'); // Navigate to dashboard after login
+      localStorage.setItem("User", token); // Store the JWT token
+      navigate("/dashboard"); // Navigate to dashboard after login
     } catch (err) {
-      setError('Invalid credentials');
+      setError("Invalid credentials");
     }
   };
 
   // Function to handle "Forgot Password" click
   const handleForgotPassword = () => {
-    navigate('/forgot-password'); // Navigate to the password reset page
+    navigate("/forgot-password"); // Navigate to the password reset page
   };
 
   return (
@@ -51,7 +54,7 @@ function Login() {
             </div>
             <div className="relative w-full">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -76,7 +79,10 @@ function Login() {
                 Forgot password?
               </p>
             </div>
-            <button type="submit" className="w-full mt-6 bg-blue-500 text-white py-3 rounded hover:bg-blue-600 transition duration-200">
+            <button
+              type="submit"
+              className="w-full mt-6 bg-blue-500 text-white py-3 rounded hover:bg-blue-600 transition duration-200"
+            >
               Login
             </button>
           </form>
@@ -91,7 +97,8 @@ function Login() {
           </h1>
           <div className="flex justify-center w-full">
             <h3 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-semibold leading-snug text-center">
-              Empowering Change,<br /> Driving Progress
+              Empowering Change,
+              <br /> Driving Progress
             </h3>
           </div>
         </div>

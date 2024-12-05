@@ -1,22 +1,25 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPassword() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleForgotPassword = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
-      setMessage(response.data.message);  // Message from backend like 'Code sent to your email'
-      navigate('/verify-code', { state: { email } }); // Navigate to verify code page with email in state
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/forgot-password`,
+        { email }
+      );
+      setMessage(response.data.message); // Message from backend like 'Code sent to your email'
+      navigate("/verify-code", { state: { email } }); // Navigate to verify code page with email in state
     } catch (err) {
-      setError(err.response.data.error || 'An error occurred');
+      setError(err.response.data.error || "An error occurred");
     }
   };
 
