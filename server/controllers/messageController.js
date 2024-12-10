@@ -6,28 +6,34 @@ const sendMessage = async (req, res) => {
     const { content, groupId, attachments, recipientId } = req.body;
     const userId = req.user.id;
 
+    // Validate input
     if (!content || (!groupId && !recipientId)) {
       return res.status(400).json({
         message: "Content and either groupId or recipientId must be provided",
       });
     }
 
+    // Prepare message data
     const messageData = {
       content,
       sender: userId,
       attachments: attachments || [],
     };
 
+    // Check if the message is for a group or a recipient
     if (groupId) {
       messageData.group = groupId;
     } else if (recipientId) {
       messageData.recipient = recipientId;
     }
 
+    // Save the message in the database
     const message = new Message(messageData);
     await message.save();
 
     const targetId = groupId || recipientId;
+
+    // Emit the message to the correct socket room (group or recipient)
     if (io && targetId) {
       io.to(targetId.toString()).emit("receiveMessage", message);
     } else {
@@ -59,15 +65,24 @@ const replyToMessage = async (req, res) => {
       return res.status(404).json({ message: "Message not found" });
     }
 
+    // Add the reply to the message's replies array
     const reply = { content, sender: userId };
 
     message.replies.push(reply);
     await message.save();
 
-    io.to(message.group || message.recipient.toString()).emit("receiveReply", {
-      messageId,
-      reply,
-    });
+    // Emit the reply to the group or recipient of the original message
+    const targetId = message.group || message.recipient.toString();
+    if (io && targetId) {
+      io.to(targetId).emit("receiveReply", {
+        messageId,
+        reply,
+      });
+    } else {
+      console.error(
+        "Socket.IO instance (io) is not defined or no valid targetId found"
+      );
+    }
 
     res.status(201).json(message);
   } catch (error) {
@@ -80,13 +95,17 @@ const getMessages = async (req, res) => {
   try {
     const { groupId, recipientId } = req.params;
 
+    // Validate input
     if (!groupId && !recipientId) {
-      return res
-        .status(400)
-        .json({ message: "Either groupId or recipientId must be provided" });
+      return res.status(400).json({
+        message: "Either groupId or recipientId must be provided",
+      });
     }
 
+    // Build query based on whether it's a group or direct message
     const query = groupId ? { group: groupId } : { recipient: recipientId };
+
+    // Fetch the messages from the database
     const messages = await Message.find(query)
       .populate("sender", "firstName lastName")
       .populate("replies.sender", "firstName lastName");

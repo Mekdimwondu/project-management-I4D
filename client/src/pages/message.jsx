@@ -144,8 +144,8 @@ function Message({ groupId, groupName }) {
               key={index}
               className={`flex ${
                 message.sender?._id === userId
-                  ? "justify-end items-start "
-                  : "justify-start items-start"
+                  ? "justify-end items-end "
+                  : "justify-start items-end"
               }`}
             >
               <div
