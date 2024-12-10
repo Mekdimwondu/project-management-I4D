@@ -137,7 +137,7 @@ function Message({ groupId, groupName }) {
       </div>
 
       {/* Messages List */}
-      <div className="flex-1 flex flex-col-reverse overflow-y-auto p-3 gap-y-2 space-y-4 bg-slate-900">
+      <div className="flex-1 flex flex-col overflow-y-auto p-3 gap-y-2 space-y-4 bg-slate-900">
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <div
