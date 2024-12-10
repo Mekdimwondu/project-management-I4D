@@ -1,24 +1,30 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
-import apiService from '../api/apiService';
-import { jwtDecode } from 'jwt-decode';
+import { useState, useEffect } from "react";
+import apiService from "../api/apiService";
+import { jwtDecode } from "jwt-decode";
 
-function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
+function GroupList({ onGroupSelect, setIsCreatingGroup }) {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [isCreatingGroup, setIsCreatingGroupState] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupName, setNewGroupName] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false); // Add state for admin status
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+
+  const handleGroupSelect = (groupId, groupName) => {
+    setSelectedGroupId(groupId);
+    onGroupSelect(groupId, groupName);
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('User');
+    const token = localStorage.getItem("User");
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        setIsAdmin(decodedToken.role === 'Admin');
+        setIsAdmin(decodedToken.role === "Admin");
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
       }
     }
   }, []);
@@ -26,19 +32,19 @@ function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await apiService.get('/groups');
+        const response = await apiService.get("/groups");
         setGroups(response.data);
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        console.error("Error fetching groups:", error);
       }
     };
 
     const fetchUsers = async () => {
       try {
-        const response = await apiService.get('/users');
+        const response = await apiService.get("/users");
         setUsers(response.data);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -48,7 +54,7 @@ function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
 
   const handleCreateGroup = async () => {
     if (!newGroupName || selectedUsers.length === 0) {
-      alert('Please provide a group name and select at least one user.');
+      alert("Please provide a group name and select at least one user.");
       return;
     }
 
@@ -58,16 +64,13 @@ function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
     };
 
     try {
-      await apiService.post('/groups', groupData);
-      setNewGroupName('');
+      await apiService.post("/groups", groupData);
+      setNewGroupName("");
       setSelectedUsers([]);
       setIsCreatingGroupState(false);
       setGroups((prevGroups) => [...prevGroups, groupData]); // Refresh group list
     } catch (error) {
-     
-      console.error('Error creating group:', error);
-       
-      
+      console.error("Error creating group:", error);
     }
   };
 
@@ -89,11 +92,15 @@ function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
       <div className="flex-1 overflow-y-auto">
         <ul className="space-y-2">
           {groups.length > 0 ? (
-            groups.map((group,index) => (
+            groups.map((group, index) => (
               <li
-                key={group.length||index}
-                className="text-lg cursor-pointer text-white hover:bg-slate-600"
-                onClick={() => onGroupSelect(group._id, group.name)}
+                key={group._id || index}
+                className={`text-lg cursor-pointer text-white ${
+                  selectedGroupId === group._id
+                    ? "bg-blue-500"
+                    : "hover:bg-slate-600"
+                }`}
+                onClick={() => handleGroupSelect(group._id, group.name)}
               >
                 {group.name}
               </li>
@@ -131,7 +138,9 @@ function GroupList({ onGroupSelect,  setIsCreatingGroup }) {
                             if (e.target.checked) {
                               setSelectedUsers([...selectedUsers, user._id]);
                             } else {
-                              setSelectedUsers(selectedUsers.filter((id) => id !== user._id));
+                              setSelectedUsers(
+                                selectedUsers.filter((id) => id !== user._id)
+                              );
                             }
                           }}
                           className="mr-2"

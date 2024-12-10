@@ -1,15 +1,15 @@
-/* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import { jwtDecode } from "jwt-decode"; // Correct jwt-decode import
-import apiService from "../api/apiService"; // Custom apiService
+import { jwtDecode } from "jwt-decode";
+import apiService from "../api/apiService";
 
 function Message({ groupId, groupName }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [userId, setUserId] = useState(null); // Store the current user's ID
-  const [userName, setUserName] = useState({ firstName: "", lastName: "" }); // Store the user's name
-  const [socket, setSocket] = useState(null); // Store the socket connection
+  const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState({ firstName: "", lastName: "" });
+  const [socket, setSocket] = useState(null);
+  const messagesEndRef = useRef(null); // Ref to scroll to the end of the message list
 
   // Decode JWT token and set user ID and name
   useEffect(() => {
@@ -17,11 +17,11 @@ function Message({ groupId, groupName }) {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
-        setUserId(decodedToken.id); // Store the current user's ID
+        setUserId(decodedToken.id);
         setUserName({
           firstName: decodedToken.firstName,
           lastName: decodedToken.lastName,
-        }); // Store the current user's name
+        });
       } catch (error) {
         console.error("Error decoding token:", error);
       }
@@ -30,10 +30,10 @@ function Message({ groupId, groupName }) {
 
   // Fetch messages and set up the socket connection
   useEffect(() => {
-    if (!groupId) return; // Ensure groupId is present
+    if (!groupId) return;
 
     // Initialize socket connection once
-    const newSocket = io(`${import.meta.env.VITE_BACKEND_URL}`); // Replace with your socket server URL
+    const newSocket = io(`${import.meta.env.VITE_BACKEND_URL}`);
     setSocket(newSocket);
 
     // Join the room
@@ -69,15 +69,22 @@ function Message({ groupId, groupName }) {
     };
   }, [groupId]);
 
+  // Scroll to the bottom of the chat when new messages are added
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   // Function to send new messages
   const sendMessage = () => {
-    if (!newMessage || !socket) return; // Prevent sending empty messages
+    if (!newMessage || !socket) return;
 
     const token = localStorage.getItem("User");
     let decodedToken;
     if (token) {
       try {
-        decodedToken = jwtDecode(token); // Decode the token to extract user info
+        decodedToken = jwtDecode(token);
       } catch (error) {
         console.error("Error decoding token:", error);
         return;
@@ -91,19 +98,18 @@ function Message({ groupId, groupName }) {
         _id: decodedToken.id,
         firstName: decodedToken.firstName,
         lastName: decodedToken.lastName,
-      }, // Pass user's full name along with the ID
-      attachments: [], // If any attachments are present, pass them here
+      },
+      attachments: [],
     };
 
     // Send the message to the server via HTTP request
     apiService
       .post(`/messages/${groupId}`, messageData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("User")}`, // Include JWT token in header
+          Authorization: `Bearer ${localStorage.getItem("User")}`,
         },
       })
       .then(() => {
-        // Do not add the message locally here, wait for the socket event
         setNewMessage(""); // Clear the input field after sending
 
         // Emit the message through the socket to notify other clients
@@ -113,7 +119,7 @@ function Message({ groupId, groupName }) {
             _id: userId,
             firstName: userName.firstName,
             lastName: userName.lastName,
-          }, // Include the user's name when emitting via socket
+          },
         });
       })
       .catch((error) => {
@@ -131,13 +137,15 @@ function Message({ groupId, groupName }) {
       </div>
 
       {/* Messages List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900">
+      <div className="flex-1 flex flex-col-reverse overflow-y-auto p-3 gap-y-2 space-y-4 bg-slate-900">
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <div
               key={index}
               className={`flex ${
-                message.sender?._id === userId ? "justify-end" : "justify-start"
+                message.sender?._id === userId
+                  ? "justify-end items-start "
+                  : "justify-start items-start"
               }`}
             >
               <div
@@ -161,6 +169,8 @@ function Message({ groupId, groupName }) {
             No messages yet.
           </div>
         )}
+        {/* Scroll to the bottom marker */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input Box */}
