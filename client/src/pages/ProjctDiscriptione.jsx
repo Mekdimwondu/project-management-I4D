@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Select from "react-select";
 import {
@@ -19,6 +19,7 @@ function ProjectDescription() {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [isEditingTeam, setIsEditingTeam] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false); // Proper state for admin check
+  const dropdownRef = useRef(null);
 
   // Check if the user is admin
   useEffect(() => {
@@ -81,12 +82,25 @@ function ProjectDescription() {
     fetchUsers();
   }, [projectId]);
 
+  // Function to refresh project data
+  const refreshProjectData = async () => {
+    try {
+      const data = await fetchProjectById(projectId);
+      setProject(data);
+      setTasks(data.tasks || []);
+      setSelectedMembers(data.teamMembers || []);
+    } catch (error) {
+      console.error("Failed to refresh project data:", error);
+    }
+  };
+
   // Handle team member updates (only if editing and admin)
   useEffect(() => {
     if (isAdmin && isEditingTeam) {
       const updateTeamMembers = async () => {
         try {
           await updateProjectTeamMembers(projectId, selectedMembers);
+          await refreshProjectData(); // Refresh project data after updating team members
         } catch (error) {
           console.error("Error updating team members:", error);
         }
@@ -94,6 +108,19 @@ function ProjectDescription() {
       updateTeamMembers();
     }
   }, [selectedMembers, isAdmin, isEditingTeam, projectId]); // Only update when necessary
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownVisible(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleDropdown = (index) => {
     setDropdownVisible(dropdownVisible === index ? null : index);
@@ -271,7 +298,7 @@ function ProjectDescription() {
                     {task.status}
                   </span>
 
-                  <div className="relative">
+                  <div className="relative" ref={dropdownRef}>
                     <button
                       className="text-gray-500 hover:text-gray-700 hover:font-semibold"
                       onClick={(e) => {

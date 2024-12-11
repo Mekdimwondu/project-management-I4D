@@ -1,42 +1,46 @@
-import { useEffect, useState } from 'react';
-import { fetchProjects, addTaskToProject, deleteProject } from '../api/projectApi'; // Ensure addTaskToProject is defined
+import { useEffect, useState } from "react";
+import {
+  fetchProjects,
+  addTaskToProject,
+  deleteProject,
+} from "../api/projectApi"; // Ensure addTaskToProject is defined
 import { BsThreeDots } from "react-icons/bs";
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 function Project() {
-  const storedUserToken = localStorage.getItem('User');
+  const storedUserToken = localStorage.getItem("User");
   let user = null;
 
   if (storedUserToken) {
     try {
       user = jwtDecode(storedUserToken);
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      console.error("Failed to decode token:", error);
     }
   }
 
-  const isAdmin = user && user.role === 'Admin';
+  const isAdmin = user && user.role === "Admin";
 
   const [projects, setProjects] = useState([]);
   const [dropdownVisible, setDropdownVisible] = useState(null);
   const [showModal, setShowModal] = useState(false); // Modal visibility
   const [selectedProjectId, setSelectedProjectId] = useState(null); // Track selected project ID
-  const [taskName, setTaskName] = useState(''); // Task name
-  const [taskDescription, setTaskDescription] = useState(''); // Task description
+  const [taskName, setTaskName] = useState(""); // Task name
+  const [taskDescription, setTaskDescription] = useState(""); // Task description
   const [showDeleteModal, setShowDeleteModal] = useState(false); // To show/hide delete modal
-  const [projectToDelete, setProjectToDelete] = useState(null);  // Store the project to delete
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterOption, setFilterOption] = useState('newest'); // State to track filter
+  const [projectToDelete, setProjectToDelete] = useState(null); // Store the project to delete
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterOption, setFilterOption] = useState("newest"); // State to track filter
   const navigate = useNavigate();
 
   // Handle project addition
   const handleAddProject = () => {
-    navigate('/add-project');
+    navigate("/add-project");
   };
 
   // Handle dropdown toggle
@@ -58,7 +62,7 @@ function Project() {
       setShowDeleteModal(false);
       setProjectToDelete(null);
     } catch (error) {
-      console.error('Failed to delete project:', error);
+      console.error("Failed to delete project:", error);
     }
   };
 
@@ -85,7 +89,7 @@ function Project() {
         const data = await fetchProjects();
         setProjects(data);
       } catch (error) {
-        console.error('Failed to fetch projects:', error);
+        console.error("Failed to fetch projects:", error);
       }
     };
     getProjects();
@@ -105,13 +109,16 @@ function Project() {
     )
     .sort((a, b) => {
       switch (filterOption) {
-        case 'newest':
+        case "newest":
           return new Date(b.createdAt) - new Date(a.createdAt);
-          case 'priority':{
-            const priorityMap = { high: 3, medium: 2, low: 1 };
-            return priorityMap[b.priorityLevel.toLowerCase()] - priorityMap[a.priorityLevel.toLowerCase()];
-          }
-        case 'deadline':
+        case "priority": {
+          const priorityMap = { high: 3, medium: 2, low: 1 };
+          return (
+            priorityMap[b.priorityLevel.toLowerCase()] -
+            priorityMap[a.priorityLevel.toLowerCase()]
+          );
+        }
+        case "deadline":
           return new Date(a.deadline) - new Date(b.deadline); // Shorter deadline comes first
         default:
           return 0;
@@ -121,45 +128,64 @@ function Project() {
   // Task submission
   const handleAddTaskSubmit = async () => {
     if (!taskName || !taskDescription) {
-      alert('Please fill in both fields');
+      alert("Please fill in both fields");
       return;
     }
 
     try {
-      await addTaskToProject(selectedProjectId, { name: taskName, description: taskDescription });
-      setTaskName('');
-      setTaskDescription('');
+      await addTaskToProject(selectedProjectId, {
+        name: taskName,
+        description: taskDescription,
+      });
+      setTaskName("");
+      setTaskDescription("");
       setShowModal(false);
       const updatedProjects = await fetchProjects();
       setProjects(updatedProjects);
     } catch (error) {
-      console.error('Failed to add task:', error);
+      console.error("Failed to add task:", error);
     }
   };
 
   const handleCancel = () => {
     setShowModal(false);
-    setTaskName('');
-    setTaskDescription('');
+    setTaskName("");
+    setTaskDescription("");
   };
 
   // Pie chart completion data
   const getCompletionData = (project) => {
-    const completedTasks = project.tasks.filter(task => task.status === 'Completed').length;
+    const completedTasks = project.tasks.filter(
+      (task) => task.status === "Completed"
+    ).length;
     const totalTasks = project.tasks.length;
-    const completionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    const completionPercentage =
+      totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     return {
-      labels: ['Completed', 'Remaining'],
+      labels: ["Completed", "Remaining"],
       datasets: [
         {
           data: [completionPercentage, 100 - completionPercentage],
-          backgroundColor: ['#4caf50', '#f44336'],
+          backgroundColor: ["#4caf50", "#f44336"],
           borderWidth: 1,
         },
       ],
     };
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".dropdown")) {
+        setDropdownVisible(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <section className="p-6 space-y-6">
@@ -183,21 +209,21 @@ function Project() {
           onChange={handleSearchChange}
           className="w-1/5 px-4 py-2 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        
+
         {/* Filter Dropdown */}
-        <div className="relative">
+        <div className="relative dropdown">
           <button
             className="px-4 py-2 bg-gray-200 rounded-md shadow hover:bg-gray-300"
-            onClick={() => toggleDropdown('filter')}
+            onClick={() => toggleDropdown("filter")}
           >
             Filter
           </button>
-          {dropdownVisible === 'filter' && (
+          {dropdownVisible === "filter" && (
             <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-md z-10">
               <button
                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => {
-                  setFilterOption('newest');
+                  setFilterOption("newest");
                   toggleDropdown(null);
                 }}
               >
@@ -206,7 +232,7 @@ function Project() {
               <button
                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => {
-                  setFilterOption('priority');
+                  setFilterOption("priority");
                   toggleDropdown(null);
                 }}
               >
@@ -215,7 +241,7 @@ function Project() {
               <button
                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => {
-                  setFilterOption('deadline');
+                  setFilterOption("deadline");
                   toggleDropdown(null);
                 }}
               >
@@ -230,7 +256,7 @@ function Project() {
         {filteredProjects.map((project, index) => (
           <div
             key={index}
-            className="bg-white p-5 shadow-lg rounded-lg relative cursor-pointer transform transition-transform duration-300 hover:scale-105 max-w-xs mx-auto"
+            className="bg-white p-5 shadow-lg rounded-lg relative cursor-pointer transform transition-transform duration-300 hover:scale-105 max-w-xs mx-auto dropdown"
             onClick={() => clickCard(project._id)}
           >
             <div className="flex flex-col space-y-4">
@@ -267,17 +293,27 @@ function Project() {
                 </div>
               </div>
 
-              <p className="text-sm text-gray-600">Client Name: {project.clientName}</p>
-              <p className="text-sm text-gray-600">Tasks: {project.tasks.length}</p>
-              <p className="text-sm text-gray-700">Priority: {project.priorityLevel}</p>
-              <p className="text-sm text-gray-700">Deadline: {new Date(project.deadline).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-600">
+                Client Name: {project.clientName}
+              </p>
+              <p className="text-sm text-gray-600">
+                Tasks: {project.tasks.length}
+              </p>
+              <p className="text-sm text-gray-700">
+                Priority: {project.priorityLevel}
+              </p>
+              <p className="text-sm text-gray-700">
+                Deadline: {new Date(project.deadline).toLocaleDateString()}
+              </p>
 
               <div className="mt-4">
                 <h4 className="text-sm font-semibold mb-2">Team Members:</h4>
                 <ul className="flex flex-wrap gap-2 text-sm text-gray-600">
                   {project.teamMembers.length > 0 ? (
                     project.teamMembers.map((member, i) => (
-                      <li key={i} className="bg-gray-200 px-2 py-1 rounded-md">{member.label}</li>
+                      <li key={i} className="bg-gray-200 px-2 py-1 rounded-md">
+                        {member.label}
+                      </li>
                     ))
                   ) : (
                     <li>No team members</li>
@@ -286,9 +322,14 @@ function Project() {
               </div>
 
               <div className="mt-4">
-                <h4 className="text-sm font-semibold mb-2">Completion Status:</h4>
-                <div style={{ height: '150px', width: '100%' }}>
-                  <Pie data={getCompletionData(project)} options={{ responsive: true, maintainAspectRatio: false }} />
+                <h4 className="text-sm font-semibold mb-2">
+                  Completion Status:
+                </h4>
+                <div style={{ height: "150px", width: "100%" }}>
+                  <Pie
+                    data={getCompletionData(project)}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                  />
                 </div>
               </div>
             </div>
@@ -302,7 +343,9 @@ function Project() {
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-2xl mb-4">Add New Task</h2>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Task Name</label>
+              <label className="block text-sm font-semibold mb-2">
+                Task Name
+              </label>
               <input
                 type="text"
                 value={taskName}
@@ -311,7 +354,9 @@ function Project() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">Task Description</label>
+              <label className="block text-sm font-semibold mb-2">
+                Task Description
+              </label>
               <textarea
                 value={taskDescription}
                 onChange={(e) => setTaskDescription(e.target.value)}
@@ -342,7 +387,9 @@ function Project() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
             <h2 className="text-xl font-semibold mb-4">Delete Project</h2>
-            <p className="mb-6">Are you sure you want to permanently delete this project?</p>
+            <p className="mb-6">
+              Are you sure you want to permanently delete this project?
+            </p>
             <div className="flex justify-between gap-4">
               <button
                 onClick={cancelDelete}
