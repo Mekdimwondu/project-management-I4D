@@ -1,9 +1,10 @@
 // socket.js
 
 const { Server } = require("socket.io");
+let io;
 
 function initializeSocket(server) {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: process.env.FRONTEND_URL,
       methods: ["GET", "POST"],
@@ -22,11 +23,16 @@ function initializeSocket(server) {
     // Handle sending a message to a group or individual
     socket.on("sendMessage", (message) => {
       const roomId = message.groupId || message.roomId; // Use either groupId or roomId
-      const { content } = message;
+      const { content, sender } = message;
 
       if (roomId) {
         io.to(roomId).emit("receiveMessage", message);
-        console.log(`Message sent to room ${roomId}:`, content);
+        console.log(
+          `Message sent to room ${roomId} by ${
+            sender?.firstName || "Unknown"
+          } ${sender?.lastName || "User"}:`,
+          content
+        );
       } else {
         console.error("roomId is undefined. Message not sent.");
       }
@@ -39,4 +45,4 @@ function initializeSocket(server) {
   });
 }
 
-module.exports = initializeSocket;
+module.exports = { initializeSocket, getIo: () => io };

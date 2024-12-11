@@ -1,5 +1,4 @@
 // server.js
-// server.js
 
 const dotenv = require("dotenv");
 const express = require("express");
@@ -14,7 +13,7 @@ const projectRoutes = require("./routes/projectRoutes");
 const memoRoutes = require("./routes/memoRoutes");
 const messageRoutes = require("./routes/messageRoutes"); // Added message routes
 const groupRoutes = require("./routes/groupRoutes");
-const initializeSocket = require("./socket"); // Import the initializeSocket function
+const { initializeSocket } = require("./socket"); // Import the initializeSocket function
 
 dotenv.config();
 

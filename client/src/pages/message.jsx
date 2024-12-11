@@ -32,7 +32,6 @@ function Message({ groupId, groupName }) {
   useEffect(() => {
     if (!groupId) return;
 
-    // Initialize socket connection once
     const newSocket = io(`${import.meta.env.VITE_BACKEND_URL}`);
     setSocket(newSocket);
 
@@ -55,14 +54,12 @@ function Message({ groupId, groupName }) {
 
     fetchMessages();
 
-    // Handle incoming messages
-    const handleNewMessage = (message) => {
+    // Listen for new incoming messages
+    newSocket.on("receiveMessage", (message) => {
       if (message.groupId === groupId) {
         setMessages((prevMessages) => [...prevMessages, message]);
       }
-    };
-
-    newSocket.on("receiveMessage", handleNewMessage);
+    });
 
     return () => {
       newSocket.disconnect(); // Clean up socket connection on component unmount
@@ -77,7 +74,7 @@ function Message({ groupId, groupName }) {
   }, [messages]);
 
   // Function to send new messages
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!newMessage || !socket) return;
 
     const token = localStorage.getItem("User");
@@ -91,13 +88,27 @@ function Message({ groupId, groupName }) {
       }
     }
 
+    // Fetch user information from the server
+    let userInfo;
+    try {
+      const response = await apiService.get(`/users/${decodedToken.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      userInfo = response.data;
+    } catch (error) {
+      console.error("Error fetching user information:", error);
+      return;
+    }
+
     const messageData = {
       content: newMessage,
       groupId,
       sender: {
-        _id: decodedToken.id,
-        firstName: decodedToken.firstName,
-        lastName: decodedToken.lastName,
+        _id: userInfo._id,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
       },
       attachments: [],
     };
@@ -106,21 +117,14 @@ function Message({ groupId, groupName }) {
     apiService
       .post(`/messages/${groupId}`, messageData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("User")}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
         setNewMessage(""); // Clear the input field after sending
 
         // Emit the message through the socket to notify other clients
-        socket.emit("sendMessage", {
-          ...messageData,
-          sender: {
-            _id: userId,
-            firstName: userName.firstName,
-            lastName: userName.lastName,
-          },
-        });
+        socket.emit("sendMessage", messageData);
       })
       .catch((error) => {
         console.error("Error sending message:", error);
@@ -144,8 +148,8 @@ function Message({ groupId, groupName }) {
               key={index}
               className={`flex ${
                 message.sender?._id === userId
-                  ? "justify-end items-end "
-                  : "justify-start items-end"
+                  ? "justify-end items-start "
+                  : "justify-start items-start"
               }`}
             >
               <div
@@ -181,6 +185,11 @@ function Message({ groupId, groupName }) {
           onChange={(e) => setNewMessage(e.target.value)}
           className="flex-1  bg-slate-700 px-4 py-2 border text-white rounded-md shadow-sm focus:outline-none focus:ring-2"
           placeholder="Type your message..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              sendMessage();
+            }
+          }}
         />
         <button
           onClick={sendMessage}

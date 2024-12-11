@@ -1,4 +1,5 @@
-const { io } = require("../socket"); // Import io from server
+const { getIo } = require("../socket"); // Import getIo from socket.js
+const User = require("../models/user"); // Import the User model
 const Message = require("../models/messageModel");
 
 const sendMessage = async (req, res) => {
@@ -13,10 +14,20 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    // Fetch user information (firstName, lastName)
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     // Prepare message data
     const messageData = {
       content,
-      sender: userId,
+      sender: {
+        _id: userId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
       attachments: attachments || [],
     };
 
@@ -32,6 +43,7 @@ const sendMessage = async (req, res) => {
     await message.save();
 
     const targetId = groupId || recipientId;
+    const io = getIo();
 
     // Emit the message to the correct socket room (group or recipient)
     if (io && targetId) {
@@ -73,6 +85,8 @@ const replyToMessage = async (req, res) => {
 
     // Emit the reply to the group or recipient of the original message
     const targetId = message.group || message.recipient.toString();
+    const io = getIo();
+
     if (io && targetId) {
       io.to(targetId).emit("receiveReply", {
         messageId,
