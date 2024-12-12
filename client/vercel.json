@@ -1,18 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "src/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "cache-control": "s-maxage=1, stale-while-revalidate"
-      }
+      "source": "/(.*)",
+      "destination": "/"
     }
   ]
 }
